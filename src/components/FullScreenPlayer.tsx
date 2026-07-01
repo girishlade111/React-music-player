@@ -189,6 +189,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleShuffle}
+                aria-label={shuffle ? 'Disable shuffle' : 'Enable shuffle'}
                 className={`transition-colors ${shuffle ? 'text-aura-accent' : 'text-white/40 hover:text-white'}`}
               >
                 <Shuffle size={20} strokeWidth={1.5} />
