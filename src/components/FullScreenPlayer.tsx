@@ -198,6 +198,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={prevSong}
+                aria-label="Previous song"
                 className="text-white/60 hover:text-white transition-colors"
               >
                 <SkipBack size={28} strokeWidth={1.5} />
@@ -206,6 +207,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center shadow-xl"
               >
                 {isPlaying ? (
@@ -218,6 +220,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={nextSong}
+                aria-label="Next song"
                 className="text-white/60 hover:text-white transition-colors"
               >
                 <SkipForward size={28} strokeWidth={1.5} />
@@ -226,6 +229,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={cycleRepeat}
+                aria-label="Repeat"
                 className={`transition-colors relative ${
                   repeat !== 'none' ? 'text-aura-accent' : 'text-white/40 hover:text-white'
                 }`}
