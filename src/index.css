@@ -54,7 +54,6 @@
   }
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -73,13 +72,11 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Selection */
 ::selection {
   background: rgba(139, 92, 246, 0.3);
   color: white;
 }
 
-/* Hide scrollbar for clean areas but keep functionality */
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -89,19 +86,16 @@
   display: none;
 }
 
-/* Glass effect for player */
 .glass-player {
   background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.95) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* Waveform bar animation */
 .waveform-bar {
   transition: height 0.1s ease-out, background-color 0.15s ease;
 }
 
-/* Progress bar styling */
 .progress-track {
   background: rgba(255, 255, 255, 0.1);
 }
@@ -110,12 +104,14 @@
   background: linear-gradient(90deg, rgba(139, 92, 246, 0.8), rgba(255, 255, 255, 0.9));
 }
 
-/* Nav item transition */
 .nav-item {
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
-/* Pill button hover */
+.nav-item:hover {
+  transform: translateX(2px);
+}
+
 .pill-hover {
   transition: all 0.2s ease-out;
 }
@@ -125,7 +121,6 @@
   transform: translateY(-1px);
 }
 
-/* Explore card 3D */
 .explore-card {
   transform-style: preserve-3d;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -135,14 +130,12 @@
   transform: perspective(1000px) rotateY(-5deg) scale(1.02);
 }
 
-/* Ambient glow behind waveform */
 .ambient-glow {
   background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 70%);
   filter: blur(60px);
   animation: breathe 4s ease-in-out infinite;
 }
 
-/* Mood card overlay */
 .mood-card {
   position: relative;
   overflow: hidden;
@@ -156,7 +149,6 @@
   pointer-events: none;
 }
 
-/* Input styling */
 input:focus {
   outline: none;
 }
@@ -165,12 +157,10 @@ input::placeholder {
   color: rgba(255, 255, 255, 0.3);
 }
 
-/* Safe area for notched devices */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Mobile tap highlight removal */
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -179,9 +169,11 @@ input::placeholder {
   .explore-card:hover {
     transform: none !important;
   }
+  .nav-item:hover {
+    transform: none !important;
+  }
 }
 
-/* Range input styling */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -229,4 +221,34 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="range"]:hover::-moz-range-thumb {
   opacity: 1;
+}
+
+@layer utilities {
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  }
+  .glow-accent-lg {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.25);
+  }
+  .hover-lift {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  }
+  .hover-bright {
+    transition: filter 0.3s ease;
+  }
+  .hover-bright:hover {
+    filter: brightness(1.15);
+  }
+  .hover-border-glow {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .hover-border-glow:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.08);
+  }
 }

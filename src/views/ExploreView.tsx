@@ -3,16 +3,7 @@ import { motion } from 'framer-motion';
 import { Play, Pause, Music, Sparkles, Heart } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { genres, moods, allTracks } from '@/data/mockData';
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
-} as const;
-
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] as const, duration: 0.4 } },
-};
+import { container, item, cardHover } from '@/lib/animations';
 
 function ExploreView() {
   const setCurrentSong = useStore(s => s.setCurrentSong);
@@ -51,6 +42,8 @@ function ExploreView() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className={`px-4 py-1.5 rounded-full text-sm tracking-wide capitalize transition-all ${
                   tab === t ? 'bg-white text-black font-medium' : 'bg-white/10 text-white/60 hover:bg-white/20'
                 }`}
@@ -63,8 +56,10 @@ function ExploreView() {
 
         <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {moods.slice(0, 4).map((mood) => (
-            <div
+            <motion.div
               key={mood.name}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className="group relative aspect-[16/7] sm:aspect-[21/7] rounded-xl overflow-hidden cursor-pointer"
               onClick={() => {
                 const track = allTracks.find((t) => t.genre === mood.name.toLowerCase());
@@ -77,13 +72,17 @@ function ExploreView() {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
               <div className="absolute bottom-4 left-4 right-4">
                 <span className="text-white text-xl sm:text-2xl font-light capitalize tracking-wide">{mood.name}</span>
               </div>
-              <button className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-aura-accent/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 shadow-lg shadow-aura-accent/25">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-aura-accent/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 shadow-lg shadow-aura-accent/25"
+              >
                 <Play size={16} className="ml-0.5" fill="white" />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           ))}
         </motion.div>
 
@@ -102,11 +101,11 @@ function ExploreView() {
                     {tracks.map((track) => {
                       const isCurrent = currentSong?.id === track.id;
                       return (
-                        <div
+                        <motion.div
                           key={track.id}
                           onClick={() => playTrack(track)}
-                          className="group bg-white/[0.03] hover:bg-white/[0.06] rounded-xl p-3 transition-all cursor-pointer border border-white/[0.04] hover:border-white/10"
-                        >
+                          whileHover={{ y: -2 }}
+                          className="group bg-white/[0.03] hover:bg-white/[0.06] rounded-xl p-3 transition-colors cursor-pointer border border-white/[0.04] hover:border-white/10"
                           <div className="relative aspect-square rounded-lg overflow-hidden mb-2.5">
                             <img
                               src={track.cover}
@@ -132,7 +131,7 @@ function ExploreView() {
                             {track.title}
                           </p>
                           <p className="text-[11px] text-white/40 truncate">{track.artist}</p>
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>

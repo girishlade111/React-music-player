@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
+import { btnHover, sidebarItem } from '@/lib/animations';
 import {
   Home,
   Search,
@@ -115,9 +116,10 @@ function Sidebar() {
             return (
               <motion.button
                 key={item.view}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                variants={sidebarItem(index)}
+                initial="hidden"
+                animate="visible"
+                whileHover={{ x: 2 }}
                 onClick={() => setCurrentView(item.view)}
                 className={`nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded text-left transition-colors ${
                   isActive
@@ -138,9 +140,10 @@ function Sidebar() {
           {libraryItems.map((item, index) => (
             <motion.button
               key={item.label}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 + index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              variants={sidebarItem(index + 5)}
+              initial="hidden"
+              animate="visible"
+              whileHover={{ x: 2 }}
               onClick={() => setCurrentView(item.view)}
               className="nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded text-left text-white/40 hover:text-white hover:bg-white/[0.04] transition-colors"
             >
@@ -151,9 +154,10 @@ function Sidebar() {
         </div>
 
         <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          variants={sidebarItem(11)}
+          initial="hidden"
+          animate="visible"
+          whileHover={{ x: 2 }}
           className="mt-4 w-full flex items-center gap-3 px-4 py-2.5 rounded text-white/25 hover:text-white/60 transition-colors"
         >
           <Plus size={16} strokeWidth={1.5} />

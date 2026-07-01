@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { motion } from 'framer-motion';
 import { type View, useStore } from '@/store/useStore';
 import { Home, Search, Compass, User } from 'lucide-react';
 
@@ -18,16 +19,25 @@ function MobileNav() {
       {navItems.map((item) => {
         const isActive = currentView === item.view;
         return (
-          <button
+          <motion.button
             key={item.view}
             onClick={() => setCurrentView(item.view)}
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.1 }}
             className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 transition-colors ${
               isActive ? 'text-white' : 'text-white/40 hover:text-white/70'
             }`}
           >
             <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
             <span className="text-[9px] tracking-wider uppercase">{item.label}</span>
-          </button>
+            {isActive && (
+              <motion.div
+                layoutId="mobileNavIndicator"
+                className="absolute -bottom-0.5 w-6 h-[2px] bg-white rounded-full"
+                transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.3 }}
+              />
+            )}
+          </motion.button>
         );
       })}
     </nav>

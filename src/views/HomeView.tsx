@@ -6,14 +6,7 @@ import {
   recentlyPlayed, madeForYou, featuredPlaylists,
   newReleases, topArtists, formatTime,
 } from '@/data/mockData';
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
-  }),
-};
+import { container, item, homeItem, cardHover } from '@/lib/animations';
 
 function SectionHeader({ icon: Icon, title, subtitle }: { icon: ComponentType<{ size?: number; className?: string; strokeWidth?: number }>; title: string; subtitle?: string }) {
   return (
@@ -37,14 +30,13 @@ const SongCard = memo(function SongCard({ song, index, isPlaying, onPlay }: {
 }) {
   return (
     <motion.div
-      variants={itemVariants}
-      custom={index}
+      variants={homeItem(index)}
       initial="hidden"
       animate="visible"
       onClick={onPlay}
-      className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+      className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 hover:translate-x-1 transition-all duration-300 cursor-pointer"
     >
-      <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+      <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0 shadow-glow-sm group-hover:shadow-glow transition-shadow duration-500">
         <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           {isPlaying ? (
@@ -76,13 +68,12 @@ function PlaylistGrid({ playlists }: { playlists: Playlist[] }) {
       {playlists.map((playlist, i) => (
         <motion.div
           key={playlist.id}
-          variants={itemVariants}
-          custom={i}
+          variants={homeItem(i)}
           initial="hidden"
           animate="visible"
-          className="group cursor-pointer"
+          className="group cursor-pointer hover-lift"
         >
-          <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
+          <div className="relative aspect-square rounded-lg overflow-hidden mb-2 ring-0 group-hover:ring-2 ring-aura-accent/30 transition-all duration-500">
             <img src={playlist.cover} alt={playlist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
               <div className="w-10 h-10 rounded-full bg-aura-accent shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
@@ -104,13 +95,12 @@ function ArtistRow({ artists }: { artists: Artist[] }) {
       {artists.map((artist, i) => (
         <motion.div
           key={artist.name}
-          variants={itemVariants}
-          custom={i}
+          variants={homeItem(i)}
           initial="hidden"
           animate="visible"
           className="flex-shrink-0 w-[100px] sm:w-[120px] text-center cursor-pointer group"
         >
-          <div className="w-[100px] sm:w-[120px] aspect-square rounded-full overflow-hidden mb-2">
+          <div className="w-[100px] sm:w-[120px] aspect-square rounded-full overflow-hidden mb-2 ring-0 group-hover:ring-2 ring-aura-accent/40 transition-all duration-500 shadow-glow-sm group-hover:shadow-glow">
             <img src={artist.image} alt={artist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
           </div>
           <p className="text-sm text-white/80 font-light truncate">{artist.name}</p>
@@ -137,7 +127,7 @@ function HomeView() {
 
   return (
     <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar gap-8">
-      <motion.div variants={itemVariants} custom={0} initial="hidden" animate="visible">
+      <motion.div variants={item} initial="hidden" animate="show">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide">
           Good evening
         </h1>
@@ -150,12 +140,11 @@ function HomeView() {
           {madeForYou.slice(0, 4).map((song, i) => (
             <motion.div
               key={song.id}
-              variants={itemVariants}
-              custom={i + 10}
+              variants={homeItem(i + 10)}
               initial="hidden"
               animate="visible"
               onClick={() => playSong(song)}
-              className="group flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-lg overflow-hidden transition-colors cursor-pointer"
+              className="group flex items-center gap-3 bg-white/5 hover:bg-white/10 hover:translate-x-1 rounded-lg overflow-hidden transition-all duration-300 cursor-pointer"
             >
               <div className="relative w-[60px] h-[60px] flex-shrink-0">
                 <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
@@ -190,14 +179,13 @@ function HomeView() {
           {newReleases.map((song, i) => (
             <motion.div
               key={song.id}
-              variants={itemVariants}
-              custom={i + 30}
+              variants={homeItem(i + 30)}
               initial="hidden"
               animate="visible"
               onClick={() => playSong(song)}
-              className="group flex-shrink-0 w-[150px] sm:w-[180px] cursor-pointer"
+              className="group flex-shrink-0 w-[150px] sm:w-[180px] cursor-pointer hover-lift"
             >
-              <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
+              <div className="relative aspect-square rounded-lg overflow-hidden mb-2 ring-0 group-hover:ring-2 ring-aura-accent/30 transition-all duration-500">
                 <img src={song.cover} alt={song.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                   <div className="w-10 h-10 rounded-full bg-aura-accent shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">

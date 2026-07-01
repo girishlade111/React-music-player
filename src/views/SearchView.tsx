@@ -3,16 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, Mic, X, Clock, TrendingUp, Music, Play, Pause } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { genres, moods, recentSearches, trendingSearches, allTracks, formatTime } from '@/data/mockData';
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
-} as const;
-
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] as const, duration: 0.4 } },
-};
+import { container, item, cardHover } from '@/lib/animations';
 
 const tabs = ['All', 'Songs', 'Artists', 'Albums'] as const;
 
@@ -93,15 +84,17 @@ function SearchView() {
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-4">
             <motion.div variants={item} className="flex gap-2 flex-wrap">
               {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setSearchActiveTab(tab.toLowerCase() as typeof searchActiveTab)}
-                  className={`px-4 py-1.5 rounded-full text-sm tracking-wide transition-all ${
-                    searchActiveTab === tab.toLowerCase()
-                      ? 'bg-white text-black font-medium'
-                      : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
-                  }`}
-                >
+                  <motion.button
+                    key={tab}
+                    onClick={() => setSearchActiveTab(tab.toLowerCase() as typeof searchActiveTab)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`px-4 py-1.5 rounded-full text-sm tracking-wide transition-colors ${
+                      searchActiveTab === tab.toLowerCase()
+                        ? 'bg-white text-black font-medium'
+                        : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
+                    }`}
+                  >
                   {tab}
                 </button>
               ))}
@@ -114,9 +107,9 @@ function SearchView() {
                   <div
                     key={song.id}
                     onClick={() => handlePlay(song)}
-                    className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                    className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 hover:translate-x-1 transition-all duration-300 cursor-pointer"
                   >
-                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0">
+                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0 group-hover:shadow-glow-sm transition-shadow duration-500">
                       <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         {isCurrent && isPlaying ? (
@@ -170,13 +163,15 @@ function SearchView() {
               </h3>
               <div className="flex flex-wrap gap-2">
                 {trendingSearches.map((term) => (
-                  <button
+                  <motion.button
                     key={term}
                     onClick={() => setSearchQuery(term)}
-                    className="px-3 py-1.5 rounded-full bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-all tracking-wide"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-3 py-1.5 rounded-full bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-colors tracking-wide"
                   >
                     {term}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.div>
@@ -187,13 +182,15 @@ function SearchView() {
               </h3>
               <div className="flex flex-wrap gap-2">
                 {genres.map((genre) => (
-                  <button
+                  <motion.button
                     key={genre}
                     onClick={() => setSearchQuery(genre)}
-                    className="px-4 py-2 rounded-lg bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-all tracking-wide border border-white/5 hover:border-white/10"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 rounded-lg bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-colors tracking-wide border border-white/5 hover:border-white/10 hover-border-glow"
                   >
                     {genre}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.div>
@@ -202,10 +199,12 @@ function SearchView() {
               <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3">Browse by Mood</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {moods.map((mood) => (
-                  <button
+                  <motion.button
                     key={mood.name}
                     onClick={() => setSearchQuery(mood.name)}
-                    className="group relative aspect-[3/2] rounded-xl overflow-hidden"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group relative aspect-[3/2] rounded-xl overflow-hidden hover-lift"
                   >
                     <img
                       src={mood.image}
@@ -213,10 +212,11 @@ function SearchView() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                     <span className="absolute bottom-3 left-3 text-white font-light text-base tracking-wide capitalize">
                       {mood.name}
                     </span>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.div>
