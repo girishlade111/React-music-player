@@ -36,7 +36,7 @@ function SidebarTimeDisplay() {
   const currentTime = useStore(s => s.currentTime);
   const duration = useStore(s => s.duration);
   return (
-    <p className="text-[10px] text-white/25 mt-1 font-light tracking-widest">
+    <p className="text-[10px] text-white/40 mt-1 font-light tracking-widest">
       {formatTime(currentTime)} / {formatTime(duration)}
     </p>
   );
@@ -85,7 +85,7 @@ function SidebarNowPlaying() {
         <p className="text-xs text-white font-light truncate leading-relaxed">
           {currentSong.title}
         </p>
-        <p className="text-[10px] text-white/40 truncate mt-0.5 tracking-wider">
+        <p className="text-[10px] text-white/50 truncate mt-0.5 tracking-wider">
           {currentSong.artist}
         </p>
         <SidebarTimeDisplay />
@@ -124,7 +124,7 @@ function Sidebar() {
                 className={`nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded text-left transition-colors ${
                   isActive
                     ? 'text-white bg-white/[0.08]'
-                    : 'text-white/40 hover:text-white hover:bg-white/[0.04]'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
                 }`}
               >
                 <item.icon size={18} strokeWidth={1.5} />
@@ -145,7 +145,7 @@ function Sidebar() {
               animate="visible"
               whileHover={{ x: 2 }}
               onClick={() => setCurrentView(item.view)}
-              className="nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded text-left text-white/40 hover:text-white hover:bg-white/[0.04] transition-colors"
+              className="nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded text-left text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors"
             >
               <item.icon size={18} strokeWidth={1.5} />
               <span className="text-sm font-light tracking-wide">{item.label}</span>
@@ -158,7 +158,7 @@ function Sidebar() {
           initial="hidden"
           animate="visible"
           whileHover={{ x: 2 }}
-          className="mt-4 w-full flex items-center gap-3 px-4 py-2.5 rounded text-white/25 hover:text-white/60 transition-colors"
+          className="mt-4 w-full flex items-center gap-3 px-4 py-2.5 rounded text-white/40 hover:text-white/70 transition-colors"
         >
           <Plus size={16} strokeWidth={1.5} />
           <span className="text-xs font-light tracking-wider uppercase">Create Playlist</span>
@@ -180,7 +180,7 @@ function Sidebar() {
           <div className="flex-1 text-left">
             <p className="text-xs text-white/60 font-light">Alex</p>
           </div>
-          <Settings size={16} strokeWidth={1.5} className="text-white/25" aria-label="Settings" />
+          <Settings size={16} strokeWidth={1.5} className="text-white/40" aria-label="Settings" />
         </motion.button>
       </div>
     </motion.aside>
