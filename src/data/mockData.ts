@@ -1,4 +1,5 @@
-import type { Song, Playlist } from '@/store/useStore';
+import type { Song, Playlist, Artist } from '@/store/useStore';
+export type { Song, Playlist, Artist };
 
 export const genres = [
   'Afrobeat', 'Alternative', 'Arabic', 'Blues', 'Classical', 'Country',

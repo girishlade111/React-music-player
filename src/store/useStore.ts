@@ -20,6 +20,12 @@ export interface Playlist {
   cover: string;
 }
 
+export interface Artist {
+  name: string;
+  image: string;
+  genre: string;
+}
+
 export interface SearchFilter {
   query: string;
   activeTab: 'all' | 'songs' | 'artists' | 'albums';
