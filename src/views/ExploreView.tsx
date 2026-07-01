@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Music, Sparkles, Heart } from 'lucide-react';
 import { useStore } from '@/store/useStore';
@@ -14,19 +14,33 @@ const item = {
   show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] as const, duration: 0.4 } },
 };
 
-export default function ExploreView() {
-  const { setCurrentSong, currentSong, isPlaying, togglePlay } = useStore();
+function ExploreView() {
+  const setCurrentSong = useStore(s => s.setCurrentSong);
+  const currentSong = useStore(s => s.currentSong);
+  const isPlaying = useStore(s => s.isPlaying);
+  const togglePlay = useStore(s => s.togglePlay);
+
   const [tab, setTab] = useState<'genres' | 'moods'>('genres');
 
-  const genreMap: Record<string, typeof allTracks> = {};
-  genres.forEach((g) => {
-    genreMap[g] = allTracks.filter((t) => t.genre === g);
-  });
+  const genreMap = useMemo(() => {
+    const map: Record<string, typeof allTracks> = {};
+    genres.forEach((g) => {
+      map[g] = allTracks.filter((t) => t.genre === g);
+    });
+    return map;
+  }, []);
+
+  const playTrack = useCallback((track: typeof allTracks[number]) => {
+    if (currentSong?.id === track.id) {
+      togglePlay();
+    } else {
+      setCurrentSong(track);
+    }
+  }, [currentSong, togglePlay, setCurrentSong]);
 
   return (
     <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar">
       <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-6">
-        {/* Header */}
         <motion.div variants={item} className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide">Explore</h1>
@@ -47,7 +61,6 @@ export default function ExploreView() {
           </div>
         </motion.div>
 
-        {/* Hero cards */}
         <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {moods.slice(0, 4).map((mood) => (
             <div
@@ -74,7 +87,6 @@ export default function ExploreView() {
           ))}
         </motion.div>
 
-        {/* Genre Rows */}
         {tab === 'genres' && (
           <motion.div variants={item} className="flex flex-col gap-6">
             {genres.slice(0, 6).map((genre) => {
@@ -92,10 +104,7 @@ export default function ExploreView() {
                       return (
                         <div
                           key={track.id}
-                          onClick={() => {
-                            if (isCurrent) togglePlay();
-                            else setCurrentSong(track);
-                          }}
+                          onClick={() => playTrack(track)}
                           className="group bg-white/[0.03] hover:bg-white/[0.06] rounded-xl p-3 transition-all cursor-pointer border border-white/[0.04] hover:border-white/10"
                         >
                           <div className="relative aspect-square rounded-lg overflow-hidden mb-2.5">
@@ -133,7 +142,6 @@ export default function ExploreView() {
           </motion.div>
         )}
 
-        {/* Mood Grid */}
         {tab === 'moods' && (
           <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {moods.map((mood, i) => (
@@ -166,3 +174,5 @@ export default function ExploreView() {
     </div>
   );
 }
+
+export default memo(ExploreView);

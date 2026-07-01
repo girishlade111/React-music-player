@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Mic, X, Clock, TrendingUp, Music, Play, Pause } from 'lucide-react';
 import { useStore } from '@/store/useStore';
@@ -16,8 +16,16 @@ const item = {
 
 const tabs = ['All', 'Songs', 'Artists', 'Albums'] as const;
 
-export default function SearchView() {
-  const { searchQuery, setSearchQuery, searchActiveTab, setSearchActiveTab, setCurrentSong, currentSong, isPlaying, togglePlay } = useStore();
+function SearchView() {
+  const searchQuery = useStore(s => s.searchQuery);
+  const setSearchQuery = useStore(s => s.setSearchQuery);
+  const searchActiveTab = useStore(s => s.searchActiveTab);
+  const setSearchActiveTab = useStore(s => s.setSearchActiveTab);
+  const setCurrentSong = useStore(s => s.setCurrentSong);
+  const currentSong = useStore(s => s.currentSong);
+  const isPlaying = useStore(s => s.isPlaying);
+  const togglePlay = useStore(s => s.togglePlay);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -25,15 +33,26 @@ export default function SearchView() {
   }, []);
 
   const hasQuery = searchQuery.trim().length > 0;
-  const filtered = hasQuery ? allTracks.filter(t =>
-    t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  ) : [];
+
+  const filtered = useMemo(() => {
+    if (!hasQuery) return [];
+    return allTracks.filter(t =>
+      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.artist.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  const handlePlay = useCallback((song: typeof allTracks[number]) => {
+    if (currentSong?.id === song.id) {
+      togglePlay();
+    } else {
+      setCurrentSong(song);
+    }
+  }, [currentSong, togglePlay, setCurrentSong]);
 
   return (
     <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar">
       <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-6">
-        {/* Page Title */}
         <motion.h1
           variants={item}
           className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide"
@@ -41,7 +60,6 @@ export default function SearchView() {
           Search
         </motion.h1>
 
-        {/* Search Input */}
         <motion.div variants={item} className="relative w-full max-w-xl">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" strokeWidth={1.5} />
           <input
@@ -71,9 +89,7 @@ export default function SearchView() {
         </motion.div>
 
         {hasQuery ? (
-          /* Search Results */
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-4">
-            {/* Filter Tabs */}
             <motion.div variants={item} className="flex gap-2 flex-wrap">
               {tabs.map((tab) => (
                 <button
@@ -90,17 +106,13 @@ export default function SearchView() {
               ))}
             </motion.div>
 
-            {/* Results */}
             <motion.div variants={item} className="space-y-1">
               {filtered.map((song) => {
                 const isCurrent = currentSong?.id === song.id;
                 return (
                   <div
                     key={song.id}
-                    onClick={() => {
-                      if (isCurrent) togglePlay();
-                      else setCurrentSong(song);
-                    }}
+                    onClick={() => handlePlay(song)}
                     className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                   >
                     <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0">
@@ -133,9 +145,7 @@ export default function SearchView() {
             </motion.div>
           </motion.div>
         ) : (
-          /* Browse section */
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-8">
-            {/* Recent Searches */}
             <motion.div variants={item}>
               <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3 flex items-center gap-2">
                 <Clock size={14} strokeWidth={1.5} /> Recent Searches
@@ -153,7 +163,6 @@ export default function SearchView() {
               </div>
             </motion.div>
 
-            {/* Trending */}
             <motion.div variants={item}>
               <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3 flex items-center gap-2">
                 <TrendingUp size={14} strokeWidth={1.5} /> Trending Searches
@@ -171,7 +180,6 @@ export default function SearchView() {
               </div>
             </motion.div>
 
-            {/* Browse by Genre */}
             <motion.div variants={item}>
               <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3 flex items-center gap-2">
                 <Music size={14} strokeWidth={1.5} /> Browse by Genre
@@ -189,7 +197,6 @@ export default function SearchView() {
               </div>
             </motion.div>
 
-            {/* Moods */}
             <motion.div variants={item}>
               <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3">Browse by Mood</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -218,3 +225,5 @@ export default function SearchView() {
     </div>
   );
 }
+
+export default memo(SearchView);

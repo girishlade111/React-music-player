@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Clock, TrendingUp, Music } from 'lucide-react';
 import { useStore } from '@/store/useStore';
@@ -31,7 +32,7 @@ function SectionHeader({ icon: Icon, title, subtitle }: { icon: any; title: stri
   );
 }
 
-function SongCard({ song, index, isPlaying: currentlyPlaying, onPlay }: {
+const SongCard = memo(function SongCard({ song, index, isPlaying, onPlay }: {
   song: any; index: number; isPlaying: boolean; onPlay: () => void;
 }) {
   return (
@@ -46,13 +47,13 @@ function SongCard({ song, index, isPlaying: currentlyPlaying, onPlay }: {
       <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
         <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          {currentlyPlaying ? (
+          {isPlaying ? (
             <Pause size={16} className="text-white" fill="white" />
           ) : (
             <Play size={16} className="text-white ml-0.5" fill="white" />
           )}
         </div>
-        {currentlyPlaying && (
+        {isPlaying && (
           <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-end gap-[1.5px] h-3">
             <span className="w-[2px] bg-white rounded-full animate-wave1" />
             <span className="w-[2px] bg-white rounded-full animate-wave2" />
@@ -67,9 +68,9 @@ function SongCard({ song, index, isPlaying: currentlyPlaying, onPlay }: {
       <span className="text-xs text-white/20 tabular-nums">{formatTime(song.duration)}</span>
     </motion.div>
   );
-}
+});
 
-function PlaylistGrid({ playlists, onPlay }: { playlists: any[]; onPlay: (p: any) => void }) {
+function PlaylistGrid({ playlists }: { playlists: any[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
       {playlists.map((playlist, i) => (
@@ -79,7 +80,6 @@ function PlaylistGrid({ playlists, onPlay }: { playlists: any[]; onPlay: (p: any
           custom={i}
           initial="hidden"
           animate="visible"
-          onClick={() => onPlay(playlist)}
           className="group cursor-pointer"
         >
           <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
@@ -98,7 +98,7 @@ function PlaylistGrid({ playlists, onPlay }: { playlists: any[]; onPlay: (p: any
   );
 }
 
-function ArtistRow({ artists, onPlay }: { artists: any[]; onPlay: (a: any) => void }) {
+function ArtistRow({ artists }: { artists: any[] }) {
   return (
     <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 hide-scrollbar">
       {artists.map((artist, i) => (
@@ -108,7 +108,6 @@ function ArtistRow({ artists, onPlay }: { artists: any[]; onPlay: (a: any) => vo
           custom={i}
           initial="hidden"
           animate="visible"
-          onClick={() => onPlay(artist)}
           className="flex-shrink-0 w-[100px] sm:w-[120px] text-center cursor-pointer group"
         >
           <div className="w-[100px] sm:w-[120px] aspect-square rounded-full overflow-hidden mb-2">
@@ -122,20 +121,22 @@ function ArtistRow({ artists, onPlay }: { artists: any[]; onPlay: (a: any) => vo
   );
 }
 
-export default function HomeView() {
-  const { isPlaying, togglePlay, setCurrentSong, currentSong } = useStore();
+function HomeView() {
+  const isPlaying = useStore(s => s.isPlaying);
+  const togglePlay = useStore(s => s.togglePlay);
+  const setCurrentSong = useStore(s => s.setCurrentSong);
+  const currentSong = useStore(s => s.currentSong);
 
-  const playSong = (song: any) => {
+  const playSong = useCallback((song: any) => {
     if (currentSong?.id === song.id) {
       togglePlay();
     } else {
       setCurrentSong(song);
     }
-  };
+  }, [currentSong, togglePlay, setCurrentSong]);
 
   return (
     <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar gap-8">
-      {/* Greeting */}
       <motion.div variants={itemVariants} custom={0} initial="hidden" animate="visible">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide">
           Good evening
@@ -143,7 +144,6 @@ export default function HomeView() {
         <p className="text-sm text-white/30 mt-1 tracking-wide">Welcome back</p>
       </motion.div>
 
-      {/* Made For You */}
       <section>
         <SectionHeader icon={Music} title="Made for you" subtitle="Personalized picks" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -169,7 +169,6 @@ export default function HomeView() {
         </div>
       </section>
 
-      {/* Recently Played */}
       <section>
         <SectionHeader icon={Clock} title="Recently played" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
@@ -185,7 +184,6 @@ export default function HomeView() {
         </div>
       </section>
 
-      {/* Trending / New Releases */}
       <section>
         <SectionHeader icon={TrendingUp} title="New releases" subtitle="Latest drops" />
         <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 hide-scrollbar">
@@ -214,20 +212,17 @@ export default function HomeView() {
         </div>
       </section>
 
-      {/* Your Top Artists */}
       <section>
         <SectionHeader icon={TrendingUp} title="Your top artists" />
-        <ArtistRow artists={topArtists} onPlay={(artist) => {
-          const song = recentlyPlayed.find(s => s.artist === artist.name);
-          if (song) playSong(song);
-        }} />
+        <ArtistRow artists={topArtists} />
       </section>
 
-      {/* Featured Playlists */}
       <section>
         <SectionHeader icon={Music} title="Featured playlists" subtitle="Curated for you" />
-        <PlaylistGrid playlists={featuredPlaylists} onPlay={() => {}} />
+        <PlaylistGrid playlists={featuredPlaylists} />
       </section>
     </div>
   );
 }
+
+export default memo(HomeView);
