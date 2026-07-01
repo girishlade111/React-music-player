@@ -79,6 +79,11 @@ export default function useAudioEngine() {
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (oscRef.current) {
+        try { oscRef.current.stop(); } catch {}
+        oscRef.current = null;
+        gainRef.current = null;
+      }
     };
   }, [isPlaying, currentSong?.id]);
 
