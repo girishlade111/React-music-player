@@ -1,232 +1,220 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Mic, Command, X, Clock, TrendingUp } from 'lucide-react';
-import { genres, moods, recentSearches, trendingSearches } from '@/data/mockData';
+import { Search, Mic, X, Clock, TrendingUp, Music, Play, Pause } from 'lucide-react';
+import { useStore } from '@/store/useStore';
+import { genres, moods, recentSearches, trendingSearches, allTracks, formatTime } from '@/data/mockData';
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
+} as const;
+
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] as const, duration: 0.4 } },
+};
+
+const tabs = ['All', 'Songs', 'Artists', 'Albums'] as const;
 
 export default function SearchView() {
-  const [query, setQuery] = useState('');
+  const { searchQuery, setSearchQuery, searchActiveTab, setSearchActiveTab, setCurrentSong, currentSong, isPlaying, togglePlay } = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    inputRef.current?.focus();
   }, []);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05, delayChildren: 0.1 },
-    },
-    exit: { opacity: 0, x: 20, transition: { duration: 0.3 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
-  };
+  const hasQuery = searchQuery.trim().length > 0;
+  const filtered = hasQuery ? allTracks.filter(t =>
+    t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  ) : [];
 
   return (
-    <motion.div
-      key="search"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar"
-    >
-      {/* Search Input */}
-      <motion.div variants={itemVariants} className="mb-10">
-        <div className="flex items-center gap-4 border-b border-white/20 pb-3">
-          <Search size={22} strokeWidth={1.5} className="text-white/40 flex-shrink-0" />
+    <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar">
+      <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-6">
+        {/* Page Title */}
+        <motion.h1
+          variants={item}
+          className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide"
+        >
+          Search
+        </motion.h1>
+
+        {/* Search Input */}
+        <motion.div variants={item} className="relative w-full max-w-xl">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" strokeWidth={1.5} />
           <input
             ref={inputRef}
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-
-            placeholder="Type anything to search..."
-            className="flex-1 bg-transparent text-lg sm:text-2xl lg:text-3xl font-light text-white placeholder:text-white/20 outline-none"
-            autoFocus
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="What do you want to listen to?"
+            className="w-full bg-white/10 hover:bg-white/15 focus:bg-white/15 text-white text-lg sm:text-xl rounded-xl pl-12 pr-20 py-3 sm:py-4 transition-colors placeholder:text-white/20 tracking-wide"
           />
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
-              <Mic size={18} strokeWidth={1.5} className="text-white/40" />
-            </button>
-            <div className="flex items-center gap-1 px-2 py-1 rounded bg-white/10">
-              <Command size={12} strokeWidth={1.5} className="text-white/40" />
-              <span className="text-xs text-white/40 font-light">K</span>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {query.length === 0 ? (
-        <>
-          {/* Recent & Trending */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <div className="flex items-center gap-8 mb-4">
-              <h3 className="text-xs font-normal tracking-widest uppercase text-white/40">
-                Recent
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {recentSearches.map((term, i) => (
-                <motion.button
-                  key={term}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 + i * 0.05 }}
-                  onClick={() => setQuery(term)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 text-sm text-white/60 font-light tracking-wide hover:bg-white/10 hover:text-white transition-all"
-                >
-                  <Clock size={14} strokeWidth={1.5} className="text-white/30" />
-                  {term}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="mb-10">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp size={14} strokeWidth={1.5} className="text-white/40" />
-              <h3 className="text-xs font-normal tracking-widest uppercase text-white/40">
-                Trending
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {trendingSearches.map((term, i) => (
-                <motion.button
-                  key={term}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 + i * 0.05 }}
-                  onClick={() => setQuery(term)}
-                  className="px-4 py-2 rounded-full bg-white/5 text-sm text-white/60 font-light tracking-wide hover:bg-white/10 hover:text-white transition-all"
-                >
-                  {term}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Genres */}
-          <motion.div variants={itemVariants} className="mb-10">
-            <h3 className="text-xs font-normal tracking-widest uppercase text-white/40 mb-4">
-              Genres
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {genres.map((genre, i) => (
-                <motion.button
-                  key={genre}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.15 + i * 0.02 }}
-                  className="px-4 py-2 rounded-full bg-white/5 text-sm text-white/60 font-light tracking-wide hover:bg-white/15 hover:text-white transition-all pill-hover"
-                >
-                  {genre}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Moods */}
-          <motion.div variants={itemVariants}>
-            <h3 className="text-xs font-normal tracking-widest uppercase text-white/40 mb-4">
-              Moods
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-              {moods.map((mood, i) => (
-                <motion.button
-                  key={mood.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.05, ease: [0.16, 1, 0.3, 1] as const }}
-                  className="relative aspect-square rounded-lg overflow-hidden mood-card group"
-                >
-                  <img
-                    src={mood.image}
-                    alt={mood.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <span className="absolute bottom-3 left-3 text-xs font-light tracking-widest uppercase text-white/80 z-10">
-                    {mood.name}
-                  </span>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        </>
-      ) : (
-        /* Search Results */
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-4"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-normal tracking-widest uppercase text-white/40">
-              Results for "{query}"
-            </h3>
-            <button
-              onClick={() => setQuery('')}
-              className="text-white/30 hover:text-white/60 transition-colors"
-            >
-              <X size={16} strokeWidth={1.5} />
-            </button>
-          </div>
-          
-          {/* Filter tabs */}
-          <div className="flex gap-4 mb-6 border-b border-white/10 pb-3">
-            {['All', 'Songs', 'Artists', 'Albums', 'Playlists'].map((tab, i) => (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            {hasQuery && (
               <button
-                key={tab}
-                className={`text-xs tracking-wider uppercase transition-colors ${
-                  i === 0 ? 'text-white' : 'text-white/30 hover:text-white/60'
-                }`}
+                onClick={() => setSearchQuery('')}
+                className="text-white/30 hover:text-white transition-colors"
               >
-                {tab}
+                <X size={16} strokeWidth={1.5} />
               </button>
-            ))}
+            )}
+            <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-white/20 border border-white/10 rounded px-1.5 py-0.5">
+              <span>⌘</span><span>K</span>
+            </div>
+            <button className="text-white/40 hover:text-white transition-colors">
+              <Mic size={16} strokeWidth={1.5} />
+            </button>
           </div>
-
-          {/* Mock results */}
-          {[1, 2, 3, 4, 5].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/[0.04] transition-colors cursor-pointer group"
-            >
-              <div className="w-12 h-12 rounded bg-white/10 overflow-hidden">
-                <img
-                  src={`/images/album-${(i % 4) + 1}.jpg`}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-light text-white group-hover:text-white transition-colors">
-                  {['Ethereal Dreams', 'Midnight Rain', 'Neon Horizons', 'Coffee Shop Thoughts', 'Ocean Depths'][i]}
-                </p>
-                <p className="text-xs text-white/40 mt-0.5 tracking-wider">
-                  {['Airica', 'Luna Wave', 'Synth Collective', 'Morning Breeze', 'Deep Blue'][i]}
-                </p>
-              </div>
-              <span className="text-xs text-white/25 tracking-wider">
-                {['3:12', '4:08', '4:45', '3:18', '5:42'][i]}
-              </span>
-            </motion.div>
-          ))}
         </motion.div>
-      )}
-    </motion.div>
+
+        {hasQuery ? (
+          /* Search Results */
+          <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-4">
+            {/* Filter Tabs */}
+            <motion.div variants={item} className="flex gap-2 flex-wrap">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setSearchActiveTab(tab.toLowerCase() as any)}
+                  className={`px-4 py-1.5 rounded-full text-sm tracking-wide transition-all ${
+                    searchActiveTab === tab.toLowerCase()
+                      ? 'bg-white text-black font-medium'
+                      : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </motion.div>
+
+            {/* Results */}
+            <motion.div variants={item} className="space-y-1">
+              {filtered.map((song) => {
+                const isCurrent = currentSong?.id === song.id;
+                return (
+                  <div
+                    key={song.id}
+                    onClick={() => {
+                      if (isCurrent) togglePlay();
+                      else setCurrentSong(song);
+                    }}
+                    className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0">
+                      <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        {isCurrent && isPlaying ? (
+                          <Pause size={14} className="text-white" fill="white" />
+                        ) : (
+                          <Play size={14} className="text-white ml-0.5" fill="white" />
+                        )}
+                      </div>
+                      {isCurrent && isPlaying && (
+                        <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex items-end gap-[1.5px] h-2.5">
+                          <span className="w-[2px] bg-white rounded-full animate-wave1" />
+                          <span className="w-[2px] bg-white rounded-full animate-wave2" />
+                          <span className="w-[2px] bg-white rounded-full animate-wave1" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm truncate ${isCurrent ? 'text-aura-accent' : 'text-white/80'}`}>
+                        {song.title}
+                      </p>
+                      <p className="text-xs text-white/40 truncate">{song.artist} · {song.album}</p>
+                    </div>
+                    <span className="text-xs text-white/30 tabular-nums">{formatTime(song.duration)}</span>
+                  </div>
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        ) : (
+          /* Browse section */
+          <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-8">
+            {/* Recent Searches */}
+            <motion.div variants={item}>
+              <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3 flex items-center gap-2">
+                <Clock size={14} strokeWidth={1.5} /> Recent Searches
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {recentSearches.map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => setSearchQuery(term)}
+                    className="px-3 py-1.5 rounded-full bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-all tracking-wide"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Trending */}
+            <motion.div variants={item}>
+              <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3 flex items-center gap-2">
+                <TrendingUp size={14} strokeWidth={1.5} /> Trending Searches
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {trendingSearches.map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => setSearchQuery(term)}
+                    className="px-3 py-1.5 rounded-full bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-all tracking-wide"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Browse by Genre */}
+            <motion.div variants={item}>
+              <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3 flex items-center gap-2">
+                <Music size={14} strokeWidth={1.5} /> Browse by Genre
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {genres.map((genre) => (
+                  <button
+                    key={genre}
+                    onClick={() => setSearchQuery(genre)}
+                    className="px-4 py-2 rounded-lg bg-white/5 text-sm text-white/60 hover:bg-white/10 hover:text-white transition-all tracking-wide border border-white/5 hover:border-white/10"
+                  >
+                    {genre}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Moods */}
+            <motion.div variants={item}>
+              <h3 className="text-sm text-white/50 tracking-wider uppercase mb-3">Browse by Mood</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {moods.map((mood) => (
+                  <button
+                    key={mood.name}
+                    onClick={() => setSearchQuery(mood.name)}
+                    className="group relative aspect-[3/2] rounded-xl overflow-hidden"
+                  >
+                    <img
+                      src={mood.image}
+                      alt={mood.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <span className="absolute bottom-3 left-3 text-white font-light text-base tracking-wide capitalize">
+                      {mood.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
   );
 }

@@ -109,6 +109,14 @@ module.exports = {
           "0%, 100%": { opacity: "0.4", boxShadow: "0 0 20px rgba(139, 92, 246, 0.2)" },
           "50%": { opacity: "0.7", boxShadow: "0 0 40px rgba(139, 92, 246, 0.4)" },
         },
+        "wave1": {
+          "0%, 100%": { height: "3px" },
+          "50%": { height: "12px" },
+        },
+        "wave2": {
+          "0%, 100%": { height: "12px" },
+          "50%": { height: "3px" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -117,6 +125,8 @@ module.exports = {
         "breathe": "breathe 4s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "pulse-glow": "pulse-glow 4s ease-in-out infinite",
+        "wave1": "wave1 0.6s ease-in-out infinite",
+        "wave2": "wave2 0.6s ease-in-out infinite",
       },
     },
   },

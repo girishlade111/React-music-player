@@ -10,6 +10,7 @@ export interface Song {
   album: string;
   duration: number;
   cover: string;
+  genre?: string;
 }
 
 export interface Playlist {

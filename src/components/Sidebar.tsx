@@ -22,12 +22,12 @@ const mainNavItems: { view: View; label: string; icon: typeof Home }[] = [
   { view: 'profile', label: 'Profile', icon: User },
 ];
 
-const libraryItems = [
-  { label: 'Playlists', icon: ListMusic },
-  { label: 'Liked Songs', icon: Heart },
-  { label: 'Favorites', icon: Star },
-  { label: 'Downloads', icon: Download },
-  { label: 'History', icon: History },
+const libraryItems: { label: string; icon: typeof Home; view: View; filter?: string }[] = [
+  { label: 'Playlists', icon: ListMusic, view: 'home', filter: 'playlists' },
+  { label: 'Liked Songs', icon: Heart, view: 'home', filter: 'liked' },
+  { label: 'Favorites', icon: Star, view: 'explore', filter: 'favorites' },
+  { label: 'Downloads', icon: Download, view: 'profile' },
+  { label: 'History', icon: History, view: 'profile' },
 ];
 
 export default function Sidebar() {
@@ -127,6 +127,7 @@ export default function Sidebar() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => setCurrentView(item.view)}
               className="nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded text-left text-white/40 hover:text-white hover:bg-white/[0.04] transition-colors"
             >
               <item.icon size={18} strokeWidth={1.5} />

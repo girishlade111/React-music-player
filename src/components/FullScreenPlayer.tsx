@@ -14,6 +14,8 @@ import {
   Heart,
   MoreHorizontal,
   Disc3,
+  X,
+  Trash2,
 } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { formatTime } from '@/data/mockData';
@@ -38,6 +40,12 @@ export default function FullScreenPlayer() {
     queue,
     playerExpanded,
     setPlayerExpanded,
+    showQueue,
+    toggleShowQueue,
+    setCurrentSong,
+    removeFromQueue,
+    likedSongs,
+    toggleLike,
   } = useStore();
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -100,9 +108,12 @@ export default function FullScreenPlayer() {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="text-white/40 hover:text-white transition-colors"
+                onClick={() => toggleLike(currentSong.id)}
+                className={`transition-colors ${
+                  likedSongs.has(currentSong.id) ? 'text-aura-accent' : 'text-white/40 hover:text-white'
+                }`}
               >
-                <Heart size={20} strokeWidth={1.5} />
+                <Heart size={20} strokeWidth={1.5} fill={likedSongs.has(currentSong.id) ? '#8B5CF6' : 'none'} />
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -147,7 +158,12 @@ export default function FullScreenPlayer() {
               </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors flex-shrink-0 ml-4"
+                onClick={toggleShowQueue}
+                className={`w-10 h-10 rounded-full border transition-colors flex-shrink-0 ml-4 flex items-center justify-center ${
+                  showQueue
+                    ? 'border-aura-accent text-aura-accent'
+                    : 'border-white/10 text-white/40 hover:text-white hover:border-white/30'
+                }`}
               >
                 <ListMusic size={18} strokeWidth={1.5} />
               </motion.button>
@@ -273,6 +289,85 @@ export default function FullScreenPlayer() {
             </div>
           </div>
         </div>
+
+        {/* Queue Panel */}
+        <AnimatePresence>
+          {showQueue && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={toggleShowQueue}
+                className="absolute inset-0 bg-black/40 z-10"
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="absolute top-0 right-0 bottom-0 w-full max-w-sm bg-black/90 backdrop-blur-2xl z-20 flex flex-col"
+              >
+                <div className="flex items-center justify-between px-6 pt-6 pb-3">
+                  <h3 className="text-sm tracking-wider uppercase text-white font-light">Queue</h3>
+                  <button onClick={toggleShowQueue} className="text-white/40 hover:text-white transition-colors">
+                    <X size={18} strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-1 hide-scrollbar">
+                  {queue.map((track, i) => {
+                    const isCurrent = currentSong?.id === track.id;
+                    return (
+                      <div
+                        key={track.id + i}
+                        onClick={() => {
+                          setCurrentSong?.(track);
+                          toggleShowQueue?.();
+                        }}
+                        className={`group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer ${
+                          isCurrent ? 'bg-white/5' : ''
+                        }`}
+                      >
+                        <div className="relative w-10 h-10 rounded overflow-hidden flex-shrink-0">
+                          <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
+                          {isCurrent && (
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                              {isPlaying ? (
+                                <Pause size={12} className="text-white" fill="white" />
+                              ) : (
+                                <Play size={12} className="text-white ml-0.5" fill="white" />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs truncate ${isCurrent ? 'text-aura-accent' : 'text-white/70'}`}>
+                            {track.title}
+                          </p>
+                          <p className="text-[10px] text-white/40 truncate">{track.artist}</p>
+                        </div>
+                        <span className="text-[10px] text-white/30 tabular-nums">{formatTime(track.duration)}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFromQueue(i);
+                          }}
+                          className="text-white/20 hover:text-white/60 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 size={12} strokeWidth={1.5} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {queue.length === 0 && (
+                    <p className="text-sm text-white/30 text-center pt-8">Queue is empty</p>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

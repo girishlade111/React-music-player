@@ -1,210 +1,168 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
-import { carouselTracks } from '@/data/mockData';
+import { Play, Pause, Music, Sparkles, Heart } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { genres, moods, allTracks } from '@/data/mockData';
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
+} as const;
+
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] as const, duration: 0.4 } },
+};
 
 export default function ExploreView() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [mouseX, setMouseX] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { setCurrentSong } = useStore();
+  const { setCurrentSong, currentSong, isPlaying, togglePlay } = useStore();
+  const [tab, setTab] = useState<'genres' | 'moods'>('genres');
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      setMouseX(x);
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('mousemove', handleMouseMove);
-    }
-    return () => {
-      if (container) {
-        container.removeEventListener('mousemove', handleMouseMove);
-      }
-    };
-  }, []);
-
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? carouselTracks.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev === carouselTracks.length - 1 ? 0 : prev + 1));
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05, delayChildren: 0.1 },
-    },
-    exit: { opacity: 0, x: 20, transition: { duration: 0.3 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
-  };
+  const genreMap: Record<string, typeof allTracks> = {};
+  genres.forEach((g) => {
+    genreMap[g] = allTracks.filter((t) => t.genre === g);
+  });
 
   return (
-    <motion.div
-      key="explore"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8"
-    >
-      {/* Header */}
-      <motion.div variants={itemVariants} className="mb-8">
-        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-thin tracking-[0.15em] sm:tracking-[0.2em] text-white/90 uppercase">
-          Explore
-        </h1>
-        <p className="text-sm text-white/40 mt-3 tracking-wide font-light">
-          Discover new music curated for you
-        </p>
-      </motion.div>
-
-        {/* 3D Carousel */}
-      <motion.div
-        variants={itemVariants}
-        ref={containerRef}
-        className="flex-1 flex items-center justify-center relative"
-        style={{ perspective: '1200px' }}
-      >
-        {/* Navigation Arrows */}
-        <button
-          onClick={handlePrev}
-          className="absolute left-0 z-30 w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
-        >
-          <ChevronLeft size={16} strokeWidth={1.5} className="text-white/60" />
-        </button>
-        <button
-          onClick={handleNext}
-          className="absolute right-0 z-30 w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
-        >
-          <ChevronRight size={16} strokeWidth={1.5} className="text-white/60" />
-        </button>
-        {/* Cards */}
-        <div className="relative w-full h-[280px] sm:h-[360px] lg:h-[420px] flex items-center justify-center">
-          {carouselTracks.map((track, index) => {
-            let offset = index - activeIndex;
-            
-            if (offset > carouselTracks.length / 2) offset -= carouselTracks.length;
-            if (offset < -carouselTracks.length / 2) offset += carouselTracks.length;
-            
-            const isActive = offset === 0;
-            const absOffset = Math.abs(offset);
-
-            const cardH = typeof window !== 'undefined' && window.innerWidth < 640 ? 260 : 400;
-            const spacing = typeof window !== 'undefined' && window.innerWidth < 640 ? 120 : 220;
-            
-            const translateX = offset * spacing;
-            const translateZ = isActive ? 100 : -absOffset * 80;
-            const rotateY = offset * -8 + (mouseX - 0.5) * 5;
-            const scale = isActive ? 1.1 : Math.max(0.7, 1 - absOffset * 0.15);
-            const opacity = isActive ? 1 : Math.max(0.3, 1 - absOffset * 0.25);
-
-            return (
-              <motion.div
-                key={track.id}
-                className="absolute w-[200px] sm:w-[320px] rounded-xl overflow-hidden cursor-pointer explore-card"
-                animate={{
-                  x: translateX,
-                  z: translateZ,
-                  rotateY,
-                  scale,
-                  opacity,
-                  height: cardH,
-                }}
-                transition={{
-                  duration: 0.5,
-                  ease: [0.16, 1, 0.3, 1] as const,
-                }}
-                onClick={() => {
-                  if (isActive) {
-                    setCurrentSong(track);
-                  } else {
-                    setActiveIndex(index);
-                  }
-                }}
-                style={{
-                  transformStyle: 'preserve-3d',
-                  zIndex: isActive ? 20 : 10 - absOffset,
-                }}
+    <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar">
+      <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-6">
+        {/* Header */}
+        <motion.div variants={item} className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide">Explore</h1>
+            <p className="text-white/40 text-sm mt-1 tracking-wide">Discover new music</p>
+          </div>
+          <div className="flex gap-2">
+            {(['genres', 'moods'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-1.5 rounded-full text-sm tracking-wide capitalize transition-all ${
+                  tab === t ? 'bg-white text-black font-medium' : 'bg-white/10 text-white/60 hover:bg-white/20'
+                }`}
               >
-                <img
-                  src={track.cover}
-                  alt={track.title}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                
-                <div 
-                  className="absolute inset-0 opacity-[0.03]"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                  }}
-                />
+                {t}
+              </button>
+            ))}
+          </div>
+        </motion.div>
 
-                <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
-                  <div className="flex justify-between items-start">
-                    <span className="text-[10px] text-white/40 tracking-widest uppercase font-light">
-                      {String(index + 1).padStart(2, '0')} / {String(carouselTracks.length).padStart(2, '0')}
-                    </span>
-                  </div>
+        {/* Hero cards */}
+        <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {moods.slice(0, 4).map((mood) => (
+            <div
+              key={mood.name}
+              className="group relative aspect-[16/7] sm:aspect-[21/7] rounded-xl overflow-hidden cursor-pointer"
+              onClick={() => {
+                const track = allTracks.find((t) => t.genre === mood.name.toLowerCase());
+                if (track) setCurrentSong(track);
+              }}
+            >
+              <img
+                src={mood.image}
+                alt={mood.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <span className="text-white text-xl sm:text-2xl font-light capitalize tracking-wide">{mood.name}</span>
+              </div>
+              <button className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-aura-accent/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 shadow-lg shadow-aura-accent/25">
+                <Play size={16} className="ml-0.5" fill="white" />
+              </button>
+            </div>
+          ))}
+        </motion.div>
 
-                  <div>
-                    <h3 className="text-sm sm:text-xl lg:text-2xl font-light text-white tracking-wide leading-tight mb-1">
-                      {track.title}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-white/50 tracking-wider mb-2 sm:mb-4">
-                      {track.artist}
-                    </p>
-                    
-                    {isActive && (
-                      <motion.button
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCurrentSong(track);
-                        }}
-                        className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center hover:bg-white/90 transition-colors"
-                      >
-                        <Play size={14} strokeWidth={2} className="text-black ml-0.5 sm:ml-1 sm:w-5 sm:h-5" />
-                      </motion.button>
-                    )}
+        {/* Genre Rows */}
+        {tab === 'genres' && (
+          <motion.div variants={item} className="flex flex-col gap-6">
+            {genres.slice(0, 6).map((genre) => {
+              const tracks = genreMap[genre] || [];
+              return (
+                <div key={genre}>
+                  <h3 className="text-base sm:text-lg font-light text-white tracking-wide mb-3 capitalize flex items-center gap-2">
+                    <Music size={16} className="text-aura-accent" strokeWidth={1.5} />
+                    {genre}
+                    <span className="text-xs text-white/30 font-normal">{tracks.length} tracks</span>
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                    {tracks.map((track) => {
+                      const isCurrent = currentSong?.id === track.id;
+                      return (
+                        <div
+                          key={track.id}
+                          onClick={() => {
+                            if (isCurrent) togglePlay();
+                            else setCurrentSong(track);
+                          }}
+                          className="group bg-white/[0.03] hover:bg-white/[0.06] rounded-xl p-3 transition-all cursor-pointer border border-white/[0.04] hover:border-white/10"
+                        >
+                          <div className="relative aspect-square rounded-lg overflow-hidden mb-2.5">
+                            <img
+                              src={track.cover}
+                              alt={track.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              {isCurrent && isPlaying ? (
+                                <Pause size={20} className="text-white" fill="white" />
+                              ) : (
+                                <Play size={20} className="text-white ml-1" fill="white" />
+                              )}
+                            </div>
+                            {isCurrent && isPlaying && (
+                              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-end gap-[2px] h-3">
+                                <span className="w-[2.5px] bg-aura-accent rounded-full animate-wave1" />
+                                <span className="w-[2.5px] bg-aura-accent rounded-full animate-wave2" />
+                                <span className="w-[2.5px] bg-aura-accent rounded-full animate-wave1" />
+                              </div>
+                            )}
+                          </div>
+                          <p className={`text-xs truncate ${isCurrent ? 'text-aura-accent' : 'text-white/80'}`}>
+                            {track.title}
+                          </p>
+                          <p className="text-[11px] text-white/40 truncate">{track.artist}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </motion.div>
+        )}
 
-        {/* Dots indicator */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {carouselTracks.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveIndex(index)}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                index === activeIndex
-                  ? 'bg-white w-4 sm:w-6'
-                  : 'bg-white/30 hover:bg-white/50'
-              }`}
-            />
-          ))}
-        </div>
+        {/* Mood Grid */}
+        {tab === 'moods' && (
+          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {moods.map((mood, i) => (
+              <motion.button
+                key={mood.name}
+                variants={item}
+                onClick={() => {
+                  const track = allTracks.find((t) => t.genre === mood.name.toLowerCase());
+                  if (track) setCurrentSong(track);
+                }}
+                className="group relative aspect-square rounded-xl overflow-hidden"
+              >
+                <img
+                  src={mood.image}
+                  alt={mood.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <span className="absolute bottom-3 left-3 text-white font-light text-base tracking-wide capitalize">
+                  {mood.name}
+                </span>
+                <span className="absolute top-3 right-3 text-white/40">
+                  {i % 2 === 0 ? <Sparkles size={14} strokeWidth={1.5} /> : <Heart size={14} strokeWidth={1.5} />}
+                </span>
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

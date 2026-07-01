@@ -1,136 +1,233 @@
 import { motion } from 'framer-motion';
-import { Search, SkipBack, Play, Pause, SkipForward } from 'lucide-react';
+import { Play, Pause, Clock, TrendingUp, Music } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import AudioVisualizer from '@/components/AudioVisualizer';
-import { formatTime } from '@/data/mockData';
+import {
+  recentlyPlayed, madeForYou, featuredPlaylists,
+  newReleases, topArtists, formatTime,
+} from '@/data/mockData';
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
+  }),
+};
+
+function SectionHeader({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3">
+        <Icon size={20} className="text-aura-accent" strokeWidth={1.5} />
+        <div>
+          <h2 className="text-lg sm:text-xl font-light text-white">{title}</h2>
+          {subtitle && <p className="text-xs text-white/30 tracking-wide">{subtitle}</p>}
+        </div>
+      </div>
+      <button className="text-xs text-white/30 hover:text-white transition-colors tracking-wider uppercase">
+        See All
+      </button>
+    </div>
+  );
+}
+
+function SongCard({ song, index, isPlaying: currentlyPlaying, onPlay }: {
+  song: any; index: number; isPlaying: boolean; onPlay: () => void;
+}) {
+  return (
+    <motion.div
+      variants={itemVariants}
+      custom={index}
+      initial="hidden"
+      animate="visible"
+      onClick={onPlay}
+      className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+        <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          {currentlyPlaying ? (
+            <Pause size={16} className="text-white" fill="white" />
+          ) : (
+            <Play size={16} className="text-white ml-0.5" fill="white" />
+          )}
+        </div>
+        {currentlyPlaying && (
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex items-end gap-[1.5px] h-3">
+            <span className="w-[2px] bg-white rounded-full animate-wave1" />
+            <span className="w-[2px] bg-white rounded-full animate-wave2" />
+            <span className="w-[2px] bg-white rounded-full animate-wave1" />
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-white font-light truncate">{song.title}</p>
+        <p className="text-xs text-white/40 truncate mt-0.5">{song.artist}</p>
+      </div>
+      <span className="text-xs text-white/20 tabular-nums">{formatTime(song.duration)}</span>
+    </motion.div>
+  );
+}
+
+function PlaylistGrid({ playlists, onPlay }: { playlists: any[]; onPlay: (p: any) => void }) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+      {playlists.map((playlist, i) => (
+        <motion.div
+          key={playlist.id}
+          variants={itemVariants}
+          custom={i}
+          initial="hidden"
+          animate="visible"
+          onClick={() => onPlay(playlist)}
+          className="group cursor-pointer"
+        >
+          <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
+            <img src={playlist.cover} alt={playlist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-aura-accent shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                <Play size={18} className="text-white ml-0.5" fill="white" />
+              </div>
+            </div>
+          </div>
+          <p className="text-sm text-white/80 font-light truncate">{playlist.name}</p>
+          <p className="text-xs text-white/30 truncate">{playlist.songCount} songs</p>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function ArtistRow({ artists, onPlay }: { artists: any[]; onPlay: (a: any) => void }) {
+  return (
+    <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 hide-scrollbar">
+      {artists.map((artist, i) => (
+        <motion.div
+          key={artist.name}
+          variants={itemVariants}
+          custom={i}
+          initial="hidden"
+          animate="visible"
+          onClick={() => onPlay(artist)}
+          className="flex-shrink-0 w-[100px] sm:w-[120px] text-center cursor-pointer group"
+        >
+          <div className="w-[100px] sm:w-[120px] aspect-square rounded-full overflow-hidden mb-2">
+            <img src={artist.image} alt={artist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          </div>
+          <p className="text-sm text-white/80 font-light truncate">{artist.name}</p>
+          <p className="text-xs text-white/30 truncate">{artist.genre}</p>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 export default function HomeView() {
-  const { isPlaying, togglePlay, currentSong, currentTime, duration, setCurrentView } = useStore();
+  const { isPlaying, togglePlay, setCurrentSong, currentSong } = useStore();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-    },
-    exit: { opacity: 0, transition: { duration: 0.3 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+  const playSong = (song: any) => {
+    if (currentSong?.id === song.id) {
+      togglePlay();
+    } else {
+      setCurrentSong(song);
+    }
   };
 
   return (
-    <motion.div
-      key="home"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8"
-    >
-      {/* Top Status Bar */}
-      <motion.div variants={itemVariants} className="flex justify-between items-center mb-8">
-        <span className="text-[10px] text-white/40 tracking-widest uppercase font-light">
-          {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-        </span>
-        <span className="text-[10px] text-white/40 tracking-widest uppercase font-light">
-          AURA Music
-        </span>
-      </motion.div>
-
-      {/* Hero Title */}
-      <motion.div variants={itemVariants} className="mb-8">
-        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-thin tracking-[0.15em] sm:tracking-[0.2em] text-white/90 uppercase">
-          Home
+    <div className="h-full flex flex-col px-4 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 overflow-y-auto hide-scrollbar gap-8">
+      {/* Greeting */}
+      <motion.div variants={itemVariants} custom={0} initial="hidden" animate="visible">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white tracking-wide">
+          Good evening
         </h1>
+        <p className="text-sm text-white/30 mt-1 tracking-wide">Welcome back</p>
       </motion.div>
 
-      {/* Search Bar */}
-      <motion.div variants={itemVariants} className="mb-8">
-        <button
-          onClick={() => setCurrentView('search')}
-          className="flex items-center gap-3 text-white/30 hover:text-white/60 transition-colors group"
-        >
-          <Search size={20} strokeWidth={1.5} className="group-hover:text-white/60" />
-          <span className="text-lg font-light tracking-wide">
-            Type anything to search...
-          </span>
-        </button>
-      </motion.div>
+      {/* Made For You */}
+      <section>
+        <SectionHeader icon={Music} title="Made for you" subtitle="Personalized picks" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {madeForYou.slice(0, 4).map((song, i) => (
+            <motion.div
+              key={song.id}
+              variants={itemVariants}
+              custom={i + 10}
+              initial="hidden"
+              animate="visible"
+              onClick={() => playSong(song)}
+              className="group flex items-center gap-3 bg-white/5 hover:bg-white/10 rounded-lg overflow-hidden transition-colors cursor-pointer"
+            >
+              <div className="relative w-[60px] h-[60px] flex-shrink-0">
+                <img src={song.cover} alt={song.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Play size={18} className="text-white ml-0.5" fill="white" />
+                </div>
+              </div>
+              <p className="text-sm text-white/80 font-light truncate">{song.title}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-      {/* Audio Visualizer */}
-      <motion.div variants={itemVariants} className="flex-1 flex flex-col justify-center min-h-0">
-        <AudioVisualizer />
-      </motion.div>
-
-      {/* Player Controls */}
-      <motion.div variants={itemVariants} className="mt-8">
-        {/* Progress Bar */}
-        <div className="flex items-center gap-4 mb-4 max-w-lg mx-auto">
-          <span className="text-[10px] text-white/40 tracking-widest w-10 text-right">
-            {formatTime(currentTime)}
-          </span>
-          <div className="flex-1 h-[2px] progress-track rounded-full relative group cursor-pointer">
-            <div
-              className="absolute inset-y-0 left-0 progress-fill rounded-full transition-all"
-              style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+      {/* Recently Played */}
+      <section>
+        <SectionHeader icon={Clock} title="Recently played" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+          {recentlyPlayed.slice(0, 6).map((song, i) => (
+            <SongCard
+              key={song.id}
+              song={song}
+              index={i + 20}
+              isPlaying={currentSong?.id === song.id && isPlaying}
+              onPlay={() => playSong(song)}
             />
-          </div>
-          <span className="text-[10px] text-white/40 tracking-widest w-10">
-            {formatTime(duration)}
-          </span>
+          ))}
         </div>
+      </section>
 
-        {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-6">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-white/30 hover:text-white/70 transition-colors"
-          >
-            <SkipBack size={22} strokeWidth={1.5} />
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={togglePlay}
-            className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center hover:border-white/60 hover:bg-white/5 transition-all"
-          >
-            {isPlaying ? (
-              <Pause size={18} strokeWidth={1.5} />
-            ) : (
-              <Play size={18} strokeWidth={1.5} className="ml-0.5" />
-            )}
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-white/30 hover:text-white/70 transition-colors"
-          >
-            <SkipForward size={22} strokeWidth={1.5} />
-          </motion.button>
+      {/* Trending / New Releases */}
+      <section>
+        <SectionHeader icon={TrendingUp} title="New releases" subtitle="Latest drops" />
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 hide-scrollbar">
+          {newReleases.map((song, i) => (
+            <motion.div
+              key={song.id}
+              variants={itemVariants}
+              custom={i + 30}
+              initial="hidden"
+              animate="visible"
+              onClick={() => playSong(song)}
+              className="group flex-shrink-0 w-[150px] sm:w-[180px] cursor-pointer"
+            >
+              <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
+                <img src={song.cover} alt={song.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-aura-accent shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                    <Play size={18} className="text-white ml-0.5" fill="white" />
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-white/80 font-light truncate">{song.title}</p>
+              <p className="text-xs text-white/30 truncate">{song.artist}</p>
+            </motion.div>
+          ))}
         </div>
+      </section>
 
-        {/* Current Song Info */}
-        {currentSong && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center mt-5"
-          >
-            <p className="text-sm font-light text-white/80 tracking-wide">
-              {currentSong.title}
-            </p>
-            <p className="text-xs text-white/40 mt-1 tracking-wider">
-              {currentSong.artist}
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
-    </motion.div>
+      {/* Your Top Artists */}
+      <section>
+        <SectionHeader icon={TrendingUp} title="Your top artists" />
+        <ArtistRow artists={topArtists} onPlay={(artist) => {
+          const song = recentlyPlayed.find(s => s.artist === artist.name);
+          if (song) playSong(song);
+        }} />
+      </section>
+
+      {/* Featured Playlists */}
+      <section>
+        <SectionHeader icon={Music} title="Featured playlists" subtitle="Curated for you" />
+        <PlaylistGrid playlists={featuredPlaylists} onPlay={() => {}} />
+      </section>
+    </div>
   );
 }

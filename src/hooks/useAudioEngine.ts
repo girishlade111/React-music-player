@@ -3,7 +3,7 @@ import { useStore } from '@/store/useStore';
 
 export default function useAudioEngine() {
   const {
-    isPlaying, currentSong, volume, isMuted, repeat,
+    isPlaying, currentSong, volume, isMuted,
     currentTime, setCurrentTime, setDuration, nextSong,
   } = useStore();
 
