@@ -57,7 +57,7 @@ function FullScreenPlayerInner() {
 
   if (!currentSong) return null;
 
-  const handleDragEnd = (_: any, info: { offset: { y: number }; velocity: { y: number } }) => {
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number }; velocity: { y: number } }) => {
     if (info.offset.y > 100 || info.velocity.y > 500) {
       setPlayerExpanded(false);
     }
@@ -76,7 +76,7 @@ function FullScreenPlayerInner() {
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
-        onDrag={(_: any, info: { offset: { y: number } }) => {
+        onDrag={(_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number } }) => {
           if (info.offset.y > 0) setDragProgress(info.offset.y * 0.5);
         }}
       >
@@ -108,6 +108,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => toggleLike(currentSong.id)}
+                aria-label={likedSongs[currentSong.id] ? 'Unlike' : 'Like'}
                 className={`transition-colors ${
                   likedSongs[currentSong.id] ? 'text-aura-accent' : 'text-white/40 hover:text-white'
                 }`}
@@ -117,6 +118,7 @@ function FullScreenPlayerInner() {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
+                aria-label="More options"
                 className="text-white/40 hover:text-white transition-colors"
               >
                 <MoreHorizontal size={20} strokeWidth={1.5} />
@@ -154,6 +156,7 @@ function FullScreenPlayerInner() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleShowQueue}
+                aria-label="Queue"
                 className={`w-10 h-10 rounded-full border transition-colors flex-shrink-0 ml-4 flex items-center justify-center ${
                   showQueue
                     ? 'border-aura-accent text-aura-accent'
