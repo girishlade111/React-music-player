@@ -47,9 +47,9 @@ export const playBtnHover = {
   whileTap: { scale: 0.92 },
 };
 
-export const sidebarItem = (delay: number): Variants => ({
+export const sidebarItem = (i: number): Variants => ({
   hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0, transition: { delay, ease: easeOut, duration: 0.4 } },
+  visible: { opacity: 1, x: 0, transition: { delay: i * 0.04, ease: easeOut, duration: 0.35 } },
 });
 
 export const homeItem = (i: number): Variants => ({
