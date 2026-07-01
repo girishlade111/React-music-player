@@ -246,6 +246,7 @@ function FullScreenPlayerInner() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleMute}
+                aria-label={isMuted ? 'Unmute' : 'Mute'}
                 className="text-white/40 hover:text-white transition-colors flex-shrink-0"
               >
                 {isMuted || volume === 0 ? (
@@ -304,7 +305,7 @@ function FullScreenPlayerInner() {
               >
                 <div className="flex items-center justify-between px-6 pt-6 pb-3">
                   <h3 className="text-sm tracking-wider uppercase text-white font-light">Queue</h3>
-                  <button onClick={toggleShowQueue} className="text-white/40 hover:text-white transition-colors">
+                  <button onClick={toggleShowQueue} aria-label="Close queue" className="text-white/40 hover:text-white transition-colors">
                     <X size={18} strokeWidth={1.5} />
                   </button>
                 </div>
@@ -341,15 +342,16 @@ function FullScreenPlayerInner() {
                           <p className="text-[10px] text-white/40 truncate">{track.artist}</p>
                         </div>
                         <span className="text-[10px] text-white/30 tabular-nums">{formatTime(track.duration)}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeFromQueue(i);
-                          }}
-                          className="text-white/20 hover:text-white/60 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <Trash2 size={12} strokeWidth={1.5} />
-                        </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeFromQueue(i);
+                            }}
+                            aria-label={`Remove ${track.title} from queue`}
+                            className="text-white/20 hover:text-white/60 transition-colors opacity-0 group-hover:opacity-100"
+                          >
+                            <Trash2 size={12} strokeWidth={1.5} />
+                          </button>
                       </div>
                     );
                   })}
