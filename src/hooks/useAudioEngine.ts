@@ -1,6 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { useStore } from '@/store/useStore';
 
+let sharedCtx: AudioContext | null = null;
+function getAudioContext(): AudioContext {
+  if (!sharedCtx) {
+    sharedCtx = new AudioContext();
+  }
+  if (sharedCtx.state === 'suspended') {
+    sharedCtx.resume();
+  }
+  return sharedCtx;
+}
+
 export default function useAudioEngine() {
   const {
     isPlaying, currentSong, volume, isMuted,
@@ -21,14 +32,23 @@ export default function useAudioEngine() {
     setDuration(currentSong.duration);
     if (!isPlaying) {
       if (oscRef.current) {
-        try { oscRef.current.stop(); } catch {}
+        try {
+          oscRef.current.stop();
+          oscRef.current.disconnect();
+        } catch (err) {
+          console.error('Failed to stop oscillator:', err);
+        }
         oscRef.current = null;
+      }
+      if (gainRef.current) {
+        gainRef.current.disconnect();
+        gainRef.current = null;
       }
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       return;
     }
 
-    const ctx = ctxRef.current || new AudioContext();
+    const ctx = getAudioContext();
     ctxRef.current = ctx;
 
     const osc = ctx.createOscillator();
@@ -80,8 +100,16 @@ export default function useAudioEngine() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (oscRef.current) {
-        try { oscRef.current.stop(); } catch {}
+        try {
+          oscRef.current.stop();
+          oscRef.current.disconnect();
+        } catch (err) {
+          console.error('Failed to stop oscillator on cleanup:', err);
+        }
         oscRef.current = null;
+      }
+      if (gainRef.current) {
+        gainRef.current.disconnect();
         gainRef.current = null;
       }
     };
