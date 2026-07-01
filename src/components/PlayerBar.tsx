@@ -71,6 +71,7 @@ function PlayerBar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleShuffle}
+              aria-label={shuffle ? 'Disable shuffle' : 'Enable shuffle'}
               className={`transition-colors hidden md:block ${shuffle ? 'text-aura-accent' : 'text-white/40 hover:text-white'}`}
             >
               <Shuffle size={16} strokeWidth={1.5} />
@@ -79,6 +80,7 @@ function PlayerBar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={prevSong}
+              aria-label="Previous song"
               className="text-white/60 hover:text-white transition-colors"
             >
               <SkipBack size={20} strokeWidth={1.5} />
@@ -87,6 +89,7 @@ function PlayerBar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={togglePlay}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
               className="w-9 h-9 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform"
             >
               {isPlaying ? (
@@ -99,6 +102,7 @@ function PlayerBar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={nextSong}
+              aria-label="Next song"
               className="text-white/60 hover:text-white transition-colors"
             >
               <SkipForward size={20} strokeWidth={1.5} />
@@ -107,6 +111,7 @@ function PlayerBar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={cycleRepeat}
+              aria-label="Repeat"
               className={`transition-colors relative hidden md:block ${
                 repeat !== 'none' ? 'text-aura-accent' : 'text-white/40 hover:text-white'
               }`}
