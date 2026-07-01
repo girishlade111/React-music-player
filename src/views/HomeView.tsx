@@ -1,7 +1,7 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, type ComponentType } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Clock, TrendingUp, Music } from 'lucide-react';
-import { useStore } from '@/store/useStore';
+import { useStore, type Song, type Playlist, type Artist } from '@/store/useStore';
 import {
   recentlyPlayed, madeForYou, featuredPlaylists,
   newReleases, topArtists, formatTime,
@@ -15,7 +15,7 @@ const itemVariants = {
   }),
 };
 
-function SectionHeader({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) {
+function SectionHeader({ icon: Icon, title, subtitle }: { icon: ComponentType<{ size?: number; className?: string; strokeWidth?: number }>; title: string; subtitle?: string }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-3">
@@ -33,7 +33,7 @@ function SectionHeader({ icon: Icon, title, subtitle }: { icon: any; title: stri
 }
 
 const SongCard = memo(function SongCard({ song, index, isPlaying, onPlay }: {
-  song: any; index: number; isPlaying: boolean; onPlay: () => void;
+  song: Song; index: number; isPlaying: boolean; onPlay: () => void;
 }) {
   return (
     <motion.div
@@ -70,7 +70,7 @@ const SongCard = memo(function SongCard({ song, index, isPlaying, onPlay }: {
   );
 });
 
-function PlaylistGrid({ playlists }: { playlists: any[] }) {
+function PlaylistGrid({ playlists }: { playlists: Playlist[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
       {playlists.map((playlist, i) => (
@@ -98,7 +98,7 @@ function PlaylistGrid({ playlists }: { playlists: any[] }) {
   );
 }
 
-function ArtistRow({ artists }: { artists: any[] }) {
+function ArtistRow({ artists }: { artists: Artist[] }) {
   return (
     <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 hide-scrollbar">
       {artists.map((artist, i) => (
@@ -127,7 +127,7 @@ function HomeView() {
   const setCurrentSong = useStore(s => s.setCurrentSong);
   const currentSong = useStore(s => s.currentSong);
 
-  const playSong = useCallback((song: any) => {
+  const playSong = useCallback((song: Song) => {
     if (currentSong?.id === song.id) {
       togglePlay();
     } else {
