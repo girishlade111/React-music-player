@@ -49,7 +49,7 @@ export const playBtnHover = {
 
 export const sidebarItem = (delay: number): Variants => ({
   hidden: { opacity: 0, x: -20 },
-  show: { opacity: 1, x: 0, transition: { delay, ease: easeOut, duration: 0.4 } },
+  visible: { opacity: 1, x: 0, transition: { delay, ease: easeOut, duration: 0.4 } },
 });
 
 export const homeItem = (i: number): Variants => ({
