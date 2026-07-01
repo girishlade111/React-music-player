@@ -8,6 +8,12 @@ import HomeView from '@/views/HomeView';
 import SearchView from '@/views/SearchView';
 import ExploreView from '@/views/ExploreView';
 import ProfileView from '@/views/ProfileView';
+import PlaylistsView from '@/views/PlaylistsView';
+import LikedSongsView from '@/views/LikedSongsView';
+import FavoritesView from '@/views/FavoritesView';
+import DownloadsView from '@/views/DownloadsView';
+import HistoryView from '@/views/HistoryView';
+import CreatePlaylistModal from '@/components/CreatePlaylistModal';
 import { useStore } from '@/store/useStore';
 import useAudioEngine from '@/hooks/useAudioEngine';
 
@@ -48,6 +54,16 @@ function App() {
         return <ExploreView key="explore" />;
       case 'profile':
         return <ProfileView key="profile" />;
+      case 'playlists':
+        return <PlaylistsView key="playlists" />;
+      case 'liked-songs':
+        return <LikedSongsView key="liked-songs" />;
+      case 'favorites':
+        return <FavoritesView key="favorites" />;
+      case 'downloads':
+        return <DownloadsView key="downloads" />;
+      case 'history':
+        return <HistoryView key="history" />;
       default:
         return <HomeView key="home" />;
     }
@@ -86,6 +102,7 @@ function App() {
       </main>
       <PlayerBar />
       <FullScreenPlayer />
+      <CreatePlaylistModal />
     </div>
   );
 }
