@@ -176,7 +176,7 @@ function Sidebar() {
           <div className="flex-1 text-left">
             <p className="text-xs text-white/60 font-light">Alex</p>
           </div>
-          <Settings size={16} strokeWidth={1.5} className="text-white/25" />
+          <Settings size={16} strokeWidth={1.5} className="text-white/25" aria-label="Settings" />
         </motion.button>
       </div>
     </motion.aside>

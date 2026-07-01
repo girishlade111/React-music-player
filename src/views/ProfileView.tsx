@@ -65,7 +65,7 @@ function ProfileView() {
             >
               <ListMusic size={14} strokeWidth={1.5} /> Queue
             </button>
-            <button className="p-2 rounded-lg bg-white/10 text-white/50 hover:bg-white/20 hover:text-white transition-all">
+            <button aria-label="Settings" className="p-2 rounded-lg bg-white/10 text-white/50 hover:bg-white/20 hover:text-white transition-all">
               <Settings size={16} strokeWidth={1.5} />
             </button>
           </div>

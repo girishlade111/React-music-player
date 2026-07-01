@@ -74,6 +74,7 @@ function SearchView() {
             {hasQuery && (
               <button
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
                 className="text-white/30 hover:text-white transition-colors"
               >
                 <X size={16} strokeWidth={1.5} />
@@ -82,7 +83,7 @@ function SearchView() {
             <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-white/20 border border-white/10 rounded px-1.5 py-0.5">
               <span>⌘</span><span>K</span>
             </div>
-            <button className="text-white/40 hover:text-white transition-colors">
+            <button aria-label="Search by voice" className="text-white/40 hover:text-white transition-colors">
               <Mic size={16} strokeWidth={1.5} />
             </button>
           </div>
@@ -94,7 +95,7 @@ function SearchView() {
               {tabs.map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setSearchActiveTab(tab.toLowerCase() as any)}
+                  onClick={() => setSearchActiveTab(tab.toLowerCase() as typeof searchActiveTab)}
                   className={`px-4 py-1.5 rounded-full text-sm tracking-wide transition-all ${
                     searchActiveTab === tab.toLowerCase()
                       ? 'bg-white text-black font-medium'
