@@ -1,0 +1,33 @@
+import { type View, useStore } from '@/store/useStore';
+import { Home, Search, Compass, User } from 'lucide-react';
+
+const navItems: { view: View; label: string; icon: typeof Home }[] = [
+  { view: 'home', label: 'Home', icon: Home },
+  { view: 'search', label: 'Search', icon: Search },
+  { view: 'explore', label: 'Explore', icon: Compass },
+  { view: 'profile', label: 'Profile', icon: User },
+];
+
+export default function MobileNav() {
+  const { currentView, setCurrentView } = useStore();
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 h-14 bg-black/95 backdrop-blur-lg border-t border-white/10 z-50 flex lg:hidden items-center justify-around pb-1 safe-area-bottom">
+      {navItems.map((item) => {
+        const isActive = currentView === item.view;
+        return (
+          <button
+            key={item.view}
+            onClick={() => setCurrentView(item.view)}
+            className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 transition-colors ${
+              isActive ? 'text-white' : 'text-white/40 hover:text-white/70'
+            }`}
+          >
+            <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+            <span className="text-[9px] tracking-wider uppercase">{item.label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
