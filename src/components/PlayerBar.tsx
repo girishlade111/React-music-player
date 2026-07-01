@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import {
   SkipBack,
@@ -13,27 +14,25 @@ import {
 import { useStore } from '@/store/useStore';
 import { formatTime } from '@/data/mockData';
 
-export default function PlayerBar() {
-  const {
-    isPlaying,
-    togglePlay,
-    currentSong,
-    currentTime,
-    duration,
-    volume,
-    setVolume,
-    isMuted,
-    toggleMute,
-    shuffle,
-    toggleShuffle,
-    repeat,
-    cycleRepeat,
-    nextSong,
-    prevSong,
-    queueIndex,
-    queue,
-    setPlayerExpanded,
-  } = useStore();
+function PlayerBar() {
+  const isPlaying = useStore(s => s.isPlaying);
+  const togglePlay = useStore(s => s.togglePlay);
+  const currentSong = useStore(s => s.currentSong);
+  const currentTime = useStore(s => s.currentTime);
+  const duration = useStore(s => s.duration);
+  const volume = useStore(s => s.volume);
+  const setVolume = useStore(s => s.setVolume);
+  const isMuted = useStore(s => s.isMuted);
+  const toggleMute = useStore(s => s.toggleMute);
+  const shuffle = useStore(s => s.shuffle);
+  const toggleShuffle = useStore(s => s.toggleShuffle);
+  const repeat = useStore(s => s.repeat);
+  const cycleRepeat = useStore(s => s.cycleRepeat);
+  const nextSong = useStore(s => s.nextSong);
+  const prevSong = useStore(s => s.prevSong);
+  const queueIndex = useStore(s => s.queueIndex);
+  const queue = useStore(s => s.queue);
+  const setPlayerExpanded = useStore(s => s.setPlayerExpanded);
 
   if (!currentSong) return null;
 
@@ -41,7 +40,6 @@ export default function PlayerBar() {
 
   return (
     <>
-      {/* Desktop Player Bar */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -49,7 +47,6 @@ export default function PlayerBar() {
         className="fixed bottom-0 left-0 lg:left-[280px] right-0 h-20 glass-player border-t border-white/10 z-50 items-center px-4 lg:px-6 hidden sm:flex cursor-pointer"
         onClick={() => setPlayerExpanded(true)}
       >
-        {/* Track Info */}
         <div className="flex items-center gap-4 w-[200px] lg:w-[280px]" onClick={() => setPlayerExpanded(true)}>
           <div className="w-10 lg:w-12 h-10 lg:h-12 rounded overflow-hidden flex-shrink-0">
             <img
@@ -68,9 +65,7 @@ export default function PlayerBar() {
           </div>
         </div>
 
-        {/* Center Controls */}
         <div className="flex-1 flex flex-col items-center gap-2">
-          {/* Control Buttons */}
           <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -80,7 +75,6 @@ export default function PlayerBar() {
             >
               <Shuffle size={16} strokeWidth={1.5} />
             </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -89,7 +83,6 @@ export default function PlayerBar() {
             >
               <SkipBack size={20} strokeWidth={1.5} />
             </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -102,7 +95,6 @@ export default function PlayerBar() {
                 <Play size={16} strokeWidth={2} className="text-black ml-0.5" />
               )}
             </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -111,7 +103,6 @@ export default function PlayerBar() {
             >
               <SkipForward size={20} strokeWidth={1.5} />
             </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -127,7 +118,6 @@ export default function PlayerBar() {
             </motion.button>
           </div>
 
-          {/* Progress Bar */}
           <div className="flex items-center gap-2 lg:gap-3 w-full max-w-md">
             <span className="text-[10px] text-white/40 tracking-wider w-8 text-right hidden xs:block">
               {formatTime(currentTime)}
@@ -148,7 +138,6 @@ export default function PlayerBar() {
           </div>
         </div>
 
-        {/* Right Controls */}
         <div className="items-center gap-4 w-[200px] lg:w-[280px] justify-end hidden lg:flex" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-1.5 text-white/40">
             <ListMusic size={16} strokeWidth={1.5} />
@@ -156,7 +145,6 @@ export default function PlayerBar() {
               {String(queueIndex + 1).padStart(2, '0')} / {String(queue.length).padStart(2, '0')}
             </span>
           </div>
-
           <div className="flex items-center gap-2 w-28">
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -189,7 +177,6 @@ export default function PlayerBar() {
         </div>
       </motion.div>
 
-      {/* Mobile Mini Player */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -229,3 +216,5 @@ export default function PlayerBar() {
     </>
   );
 }
+
+export default memo(PlayerBar);

@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useEffect, memo } from 'react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 import PlayerBar from '@/components/PlayerBar';
@@ -9,10 +10,12 @@ import ExploreView from '@/views/ExploreView';
 import ProfileView from '@/views/ProfileView';
 import { useStore } from '@/store/useStore';
 import useAudioEngine from '@/hooks/useAudioEngine';
-import { useEffect } from 'react';
 
 function App() {
-  const { currentView, nextSong, prevSong, togglePlay } = useStore();
+  const currentView = useStore(s => s.currentView);
+  const nextSong = useStore(s => s.nextSong);
+  const prevSong = useStore(s => s.prevSong);
+  const togglePlay = useStore(s => s.togglePlay);
 
   useAudioEngine();
 
@@ -35,7 +38,7 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [togglePlay, nextSong, prevSong]);
 
-  const renderView = () => {
+  const renderView = useCallback(() => {
     switch (currentView) {
       case 'home':
         return <HomeView key="home" />;
@@ -48,22 +51,16 @@ function App() {
       default:
         return <HomeView key="home" />;
     }
-  };
+  }, [currentView]);
 
   return (
     <div className="h-screen w-screen bg-black text-white overflow-hidden flex">
-      {/* Sidebar - hidden on mobile */}
       <Sidebar />
-
-      {/* Mobile bottom nav */}
       <MobileNav />
-
-      {/* Main Content */}
       <main className="flex-1 ml-0 lg:ml-[280px] mb-[112px] sm:mb-20 relative">
-        {/* Ambient background glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[800px] h-[300px] md:h-[600px] animate-breathe opacity-30">
-            <div 
+            <div
               className="w-full h-full"
               style={{
                 background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.03) 40%, transparent 70%)',
@@ -72,8 +69,6 @@ function App() {
             />
           </div>
         </div>
-
-        {/* Content */}
         <div className="relative h-full">
           <AnimatePresence mode="wait">
             <motion.div
@@ -89,14 +84,10 @@ function App() {
           </AnimatePresence>
         </div>
       </main>
-
-      {/* Player Bar */}
       <PlayerBar />
-
-      {/* Full Screen Player */}
       <FullScreenPlayer />
     </div>
   );
 }
 
-export default App;
+export default memo(App);

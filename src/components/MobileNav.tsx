@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { type View, useStore } from '@/store/useStore';
 import { Home, Search, Compass, User } from 'lucide-react';
 
@@ -8,8 +9,9 @@ const navItems: { view: View; label: string; icon: typeof Home }[] = [
   { view: 'profile', label: 'Profile', icon: User },
 ];
 
-export default function MobileNav() {
-  const { currentView, setCurrentView } = useStore();
+function MobileNav() {
+  const currentView = useStore(s => s.currentView);
+  const setCurrentView = useStore(s => s.setCurrentView);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-14 bg-black/95 backdrop-blur-lg border-t border-white/10 z-50 flex lg:hidden items-center justify-around pb-1 safe-area-bottom">
@@ -31,3 +33,5 @@ export default function MobileNav() {
     </nav>
   );
 }
+
+export default memo(MobileNav);

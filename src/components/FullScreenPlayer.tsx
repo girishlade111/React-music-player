@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown,
@@ -20,38 +20,42 @@ import {
 import { useStore } from '@/store/useStore';
 import { formatTime } from '@/data/mockData';
 
-export default function FullScreenPlayer() {
-  const {
-    isPlaying,
-    togglePlay,
-    currentSong,
-    currentTime,
-    duration,
-    volume,
-    setVolume,
-    isMuted,
-    toggleMute,
-    shuffle,
-    toggleShuffle,
-    repeat,
-    cycleRepeat,
-    nextSong,
-    prevSong,
-    queue,
-    playerExpanded,
-    setPlayerExpanded,
-    showQueue,
-    toggleShowQueue,
-    setCurrentSong,
-    removeFromQueue,
-    likedSongs,
-    toggleLike,
-  } = useStore();
+function FullScreenPlayer() {
+  const playerExpanded = useStore(s => s.playerExpanded);
+  if (!playerExpanded) return null;
+
+  return <FullScreenPlayerInner />;
+}
+
+function FullScreenPlayerInner() {
+  const isPlaying = useStore(s => s.isPlaying);
+  const togglePlay = useStore(s => s.togglePlay);
+  const currentSong = useStore(s => s.currentSong);
+  const currentTime = useStore(s => s.currentTime);
+  const duration = useStore(s => s.duration);
+  const volume = useStore(s => s.volume);
+  const setVolume = useStore(s => s.setVolume);
+  const isMuted = useStore(s => s.isMuted);
+  const toggleMute = useStore(s => s.toggleMute);
+  const shuffle = useStore(s => s.shuffle);
+  const toggleShuffle = useStore(s => s.toggleShuffle);
+  const repeat = useStore(s => s.repeat);
+  const cycleRepeat = useStore(s => s.cycleRepeat);
+  const nextSong = useStore(s => s.nextSong);
+  const prevSong = useStore(s => s.prevSong);
+  const queue = useStore(s => s.queue);
+  const setPlayerExpanded = useStore(s => s.setPlayerExpanded);
+  const showQueue = useStore(s => s.showQueue);
+  const toggleShowQueue = useStore(s => s.toggleShowQueue);
+  const setCurrentSong = useStore(s => s.setCurrentSong);
+  const removeFromQueue = useStore(s => s.removeFromQueue);
+  const likedSongs = useStore(s => s.likedSongs);
+  const toggleLike = useStore(s => s.toggleLike);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const [dragProgress, setDragProgress] = useState(0);
 
-  if (!currentSong || !playerExpanded) return null;
+  if (!currentSong) return null;
 
   const handleDragEnd = (_: any, info: { offset: { y: number }; velocity: { y: number } }) => {
     if (info.offset.y > 100 || info.velocity.y > 500) {
@@ -76,7 +80,6 @@ export default function FullScreenPlayer() {
           if (info.offset.y > 0) setDragProgress(info.offset.y * 0.5);
         }}
       >
-        {/* Background with blurred album art */}
         <div className="absolute inset-0 overflow-hidden">
           <img
             src={currentSong.cover}
@@ -86,9 +89,7 @@ export default function FullScreenPlayer() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-black" />
         </div>
 
-        {/* Content */}
         <div className="relative flex flex-col h-full px-6 sm:px-12">
-          {/* Top bar */}
           <div className="flex items-center justify-between pt-4 sm:pt-8 pb-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -99,21 +100,19 @@ export default function FullScreenPlayer() {
               <ChevronDown size={24} strokeWidth={1.5} />
               <span className="text-xs tracking-wider uppercase hidden sm:block">Now Playing</span>
             </motion.button>
-
             <div className="flex items-center gap-1 text-white/40">
               <span className="text-xs tracking-wider">{queue.length} songs</span>
             </div>
-
             <div className="flex items-center gap-3">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => toggleLike(currentSong.id)}
                 className={`transition-colors ${
-                  likedSongs.has(currentSong.id) ? 'text-aura-accent' : 'text-white/40 hover:text-white'
+                  likedSongs[currentSong.id] ? 'text-aura-accent' : 'text-white/40 hover:text-white'
                 }`}
               >
-                <Heart size={20} strokeWidth={1.5} fill={likedSongs.has(currentSong.id) ? '#8B5CF6' : 'none'} />
+                <Heart size={20} strokeWidth={1.5} fill={likedSongs[currentSong.id] ? '#8B5CF6' : 'none'} />
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -125,12 +124,10 @@ export default function FullScreenPlayer() {
             </div>
           </div>
 
-          {/* Drag handle for mobile */}
           <div className="flex sm:hidden justify-center pb-2">
             <div className="w-10 h-[3px] rounded-full bg-white/20" />
           </div>
 
-          {/* Album Art */}
           <div className="flex-1 flex flex-col items-center justify-center min-h-0 py-4">
             <motion.div
               layoutId="album-art"
@@ -144,9 +141,7 @@ export default function FullScreenPlayer() {
             </motion.div>
           </div>
 
-          {/* Track Info & Controls */}
           <div className="pb-8 sm:pb-12 space-y-6">
-            {/* Track Info */}
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
                 <h2 className="text-xl sm:text-2xl font-light text-white truncate">
@@ -169,7 +164,6 @@ export default function FullScreenPlayer() {
               </motion.button>
             </div>
 
-            {/* Progress */}
             <div className="space-y-2">
               <div className="relative h-1.5 progress-track rounded-full group cursor-pointer">
                 <div
@@ -187,7 +181,6 @@ export default function FullScreenPlayer() {
               </div>
             </div>
 
-            {/* Main Controls */}
             <div className="flex items-center justify-center gap-6 sm:gap-8">
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -197,7 +190,6 @@ export default function FullScreenPlayer() {
               >
                 <Shuffle size={20} strokeWidth={1.5} />
               </motion.button>
-
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -206,7 +198,6 @@ export default function FullScreenPlayer() {
               >
                 <SkipBack size={28} strokeWidth={1.5} />
               </motion.button>
-
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -219,7 +210,6 @@ export default function FullScreenPlayer() {
                   <Play size={28} strokeWidth={2} className="text-black ml-1" />
                 )}
               </motion.button>
-
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -228,7 +218,6 @@ export default function FullScreenPlayer() {
               >
                 <SkipForward size={28} strokeWidth={1.5} />
               </motion.button>
-
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -244,7 +233,6 @@ export default function FullScreenPlayer() {
               </motion.button>
             </div>
 
-            {/* Volume */}
             <div className="flex items-center justify-center gap-3 max-w-xs mx-auto">
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -275,7 +263,6 @@ export default function FullScreenPlayer() {
               </div>
             </div>
 
-            {/* Mini player button at bottom */}
             <div className="flex justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -290,7 +277,6 @@ export default function FullScreenPlayer() {
           </div>
         </div>
 
-        {/* Queue Panel */}
         <AnimatePresence>
           {showQueue && (
             <>
@@ -314,13 +300,12 @@ export default function FullScreenPlayer() {
                     <X size={18} strokeWidth={1.5} />
                   </button>
                 </div>
-
                 <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-1 hide-scrollbar">
                   {queue.map((track, i) => {
                     const isCurrent = currentSong?.id === track.id;
                     return (
                       <div
-                        key={track.id + i}
+                        key={track.id}
                         onClick={() => {
                           setCurrentSong?.(track);
                           toggleShowQueue?.();
@@ -372,3 +357,5 @@ export default function FullScreenPlayer() {
     </AnimatePresence>
   );
 }
+
+export default memo(FullScreenPlayer);

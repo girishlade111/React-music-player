@@ -36,7 +36,7 @@ interface PlayerState {
   repeat: 'none' | 'all' | 'one';
   queue: Song[];
   queueIndex: number;
-  likedSongs: Set<string>;
+  likedSongs: Record<string, boolean>;
   showQueue: boolean;
 }
 
@@ -92,7 +92,7 @@ export const useStore = create<AppStore>((set, get) => ({
   repeat: 'none',
   queue: defaultQueue,
   queueIndex: 0,
-  likedSongs: new Set(['1', '3', '5']),
+  likedSongs: { '1': true, '3': true, '5': true },
   showQueue: false,
 
   currentView: 'home',
@@ -153,13 +153,10 @@ export const useStore = create<AppStore>((set, get) => ({
   removeFromQueue: (index) => set((state) => ({
     queue: state.queue.filter((_, i) => i !== index),
   })),
-  toggleLike: (songId) => set((state) => {
-    const next = new Set(state.likedSongs);
-    if (next.has(songId)) next.delete(songId);
-    else next.add(songId);
-    return { likedSongs: next };
-  }),
-  isLiked: (songId) => get().likedSongs.has(songId),
+  toggleLike: (songId) => set((state) => ({
+    likedSongs: { ...state.likedSongs, [songId]: !state.likedSongs[songId] },
+  })),
+  isLiked: (songId) => !!get().likedSongs[songId],
   toggleShowQueue: () => set((state) => ({ showQueue: !state.showQueue })),
   playFromQueue: (index) => {
     const { queue } = get();

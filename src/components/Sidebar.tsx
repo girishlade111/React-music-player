@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Home,
@@ -30,8 +31,71 @@ const libraryItems: { label: string; icon: typeof Home; view: View; filter?: str
   { label: 'History', icon: History, view: 'profile' },
 ];
 
-export default function Sidebar() {
-  const { currentView, setCurrentView, currentSong, currentTime, duration, isPlaying } = useStore();
+function SidebarTimeDisplay() {
+  const currentTime = useStore(s => s.currentTime);
+  const duration = useStore(s => s.duration);
+  return (
+    <p className="text-[10px] text-white/25 mt-1 font-light tracking-widest">
+      {formatTime(currentTime)} / {formatTime(duration)}
+    </p>
+  );
+}
+
+function SidebarNowPlaying() {
+  const currentSong = useStore(s => s.currentSong);
+  const isPlaying = useStore(s => s.isPlaying);
+
+  if (!currentSong) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="flex gap-3 items-start"
+    >
+      <div className="relative w-14 h-14 rounded overflow-hidden flex-shrink-0">
+        <img
+          src={currentSong.cover}
+          alt={currentSong.title}
+          className="w-full h-full object-cover"
+        />
+        {isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <div className="flex gap-0.5 items-end h-4">
+              {[...Array(3)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="w-0.5 bg-white rounded-full"
+                  animate={{ height: [4, 12, 6, 14, 4] }}
+                  transition={{
+                    duration: 0.8,
+                    repeat: Infinity,
+                    delay: i * 0.15,
+                    ease: 'easeInOut',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 pt-0.5">
+        <p className="text-xs text-white font-light truncate leading-relaxed">
+          {currentSong.title}
+        </p>
+        <p className="text-[10px] text-white/40 truncate mt-0.5 tracking-wider">
+          {currentSong.artist}
+        </p>
+        <SidebarTimeDisplay />
+      </div>
+    </motion.div>
+  );
+}
+
+function Sidebar() {
+  const currentView = useStore(s => s.currentView);
+  const setCurrentView = useStore(s => s.setCurrentView);
 
   return (
     <motion.aside
@@ -40,59 +104,11 @@ export default function Sidebar() {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="fixed left-0 top-0 h-screen w-[280px] bg-black border-r border-white/10 flex-col z-40 hidden lg:flex"
     >
-      {/* Now Playing Mini */}
       <div className="px-6 pt-6 pb-4">
-        {currentSong && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex gap-3 items-start"
-          >
-            <div className="relative w-14 h-14 rounded overflow-hidden flex-shrink-0">
-              <img
-                src={currentSong.cover}
-                alt={currentSong.title}
-                className="w-full h-full object-cover"
-              />
-              {isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <div className="flex gap-0.5 items-end h-4">
-                    {[...Array(3)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="w-0.5 bg-white rounded-full"
-                        animate={{ height: [4, 12, 6, 14, 4] }}
-                        transition={{
-                          duration: 0.8,
-                          repeat: Infinity,
-                          delay: i * 0.15,
-                          ease: 'easeInOut',
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <p className="text-xs text-white font-light truncate leading-relaxed">
-                {currentSong.title}
-              </p>
-              <p className="text-[10px] text-white/40 truncate mt-0.5 tracking-wider">
-                {currentSong.artist}
-              </p>
-              <p className="text-[10px] text-white/25 mt-1 font-light tracking-widest">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </p>
-            </div>
-          </motion.div>
-        )}
+        <SidebarNowPlaying />
       </div>
 
-      {/* Main Navigation */}
       <nav className="flex-1 px-4 overflow-y-auto hide-scrollbar">
-        {/* Primary Nav */}
         <div className="space-y-0.5">
           {mainNavItems.map((item, index) => {
             const isActive = currentView === item.view;
@@ -116,10 +132,8 @@ export default function Sidebar() {
           })}
         </div>
 
-        {/* Divider */}
         <div className="my-5 border-t border-white/10" />
 
-        {/* Library */}
         <div className="space-y-0.5">
           {libraryItems.map((item, index) => (
             <motion.button
@@ -136,7 +150,6 @@ export default function Sidebar() {
           ))}
         </div>
 
-        {/* Create Playlist */}
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -148,7 +161,6 @@ export default function Sidebar() {
         </motion.button>
       </nav>
 
-      {/* Bottom - User */}
       <div className="px-4 py-4 border-t border-white/10">
         <motion.button
           initial={{ opacity: 0 }}
@@ -170,3 +182,5 @@ export default function Sidebar() {
     </motion.aside>
   );
 }
+
+export default memo(Sidebar);
