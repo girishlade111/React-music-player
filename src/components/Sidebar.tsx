@@ -24,12 +24,12 @@ const mainNavItems: { view: View; label: string; icon: typeof Home }[] = [
   { view: 'profile', label: 'Profile', icon: User },
 ];
 
-const libraryItems: { label: string; icon: typeof Home; view: View; filter?: string }[] = [
-  { label: 'Playlists', icon: ListMusic, view: 'home', filter: 'playlists' },
-  { label: 'Liked Songs', icon: Heart, view: 'home', filter: 'liked' },
-  { label: 'Favorites', icon: Star, view: 'explore', filter: 'favorites' },
-  { label: 'Downloads', icon: Download, view: 'profile' },
-  { label: 'History', icon: History, view: 'profile' },
+const libraryItems: { label: string; icon: typeof Home; view: View }[] = [
+  { label: 'Playlists', icon: ListMusic, view: 'playlists' },
+  { label: 'Liked Songs', icon: Heart, view: 'liked-songs' },
+  { label: 'Favorites', icon: Star, view: 'favorites' },
+  { label: 'Downloads', icon: Download, view: 'downloads' },
+  { label: 'History', icon: History, view: 'history' },
 ];
 
 function SidebarTimeDisplay() {
@@ -97,6 +97,7 @@ function SidebarNowPlaying() {
 function Sidebar() {
   const currentView = useStore(s => s.currentView);
   const setCurrentView = useStore(s => s.setCurrentView);
+  const setShowCreatePlaylist = useStore(s => s.setShowCreatePlaylist);
 
   return (
     <motion.aside
@@ -158,6 +159,7 @@ function Sidebar() {
           initial="hidden"
           animate="visible"
           whileHover={{ x: 2 }}
+          onClick={() => setShowCreatePlaylist(true)}
           className="mt-4 w-full flex items-center gap-3 px-4 py-2.5 rounded text-white/40 hover:text-white/70 transition-colors"
         >
           <Plus size={16} strokeWidth={1.5} />
