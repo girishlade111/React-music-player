@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { allTracks } from '@/data/mockData';
 
-export type View = 'home' | 'search' | 'explore' | 'profile';
+export type View = 'home' | 'search' | 'explore' | 'profile' | 'playlists' | 'liked-songs' | 'favorites' | 'downloads' | 'history';
 
 export interface Song {
   id: string;
@@ -54,6 +54,7 @@ interface UIState {
   selectedMood: string | null;
   sidebarCollapsed: boolean;
   playerExpanded: boolean;
+  showCreatePlaylist: boolean;
 }
 
 interface AppStore extends PlayerState, UIState {
@@ -83,6 +84,7 @@ interface AppStore extends PlayerState, UIState {
   toggleSidebar: () => void;
   setPlayerExpanded: (expanded: boolean) => void;
   togglePlayerExpanded: () => void;
+  setShowCreatePlaylist: (show: boolean) => void;
 }
 
 const defaultQueue = allTracks.slice(0, 5);
@@ -108,6 +110,7 @@ export const useStore = create<AppStore>((set, get) => ({
   selectedMood: null,
   sidebarCollapsed: false,
   playerExpanded: false,
+  showCreatePlaylist: false,
 
   togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
   setPlaying: (playing) => set({ isPlaying: playing }),
@@ -184,4 +187,5 @@ export const useStore = create<AppStore>((set, get) => ({
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
   setPlayerExpanded: (expanded) => set({ playerExpanded: expanded }),
   togglePlayerExpanded: () => set((state) => ({ playerExpanded: !state.playerExpanded })),
+  setShowCreatePlaylist: (show) => set({ showCreatePlaylist: show }),
 }));
