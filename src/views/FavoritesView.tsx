@@ -2,7 +2,7 @@ import { useMemo, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Star, Play, Pause, Heart } from 'lucide-react';
 import { useStore } from '@/store/useStore';
-import { allTracks, formatTime, featuredPlaylists } from '@/data/mockData';
+import { allTracks, formatTime } from '@/data/mockData';
 import { container, item } from '@/lib/animations';
 
 function FavoritesView() {

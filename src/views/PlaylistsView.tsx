@@ -22,7 +22,7 @@ function PlaylistsView() {
         </motion.div>
 
         <motion.div variants={item} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-          {playlists.map((playlist, i) => (
+          {playlists.map((playlist) => (
             <motion.div
               key={playlist.id}
               variants={item}

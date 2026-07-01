@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Play, Pause, CheckCircle, Archive } from 'lucide-react';
 import { useStore } from '@/store/useStore';
