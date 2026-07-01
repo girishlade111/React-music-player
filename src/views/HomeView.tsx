@@ -6,7 +6,7 @@ import {
   recentlyPlayed, madeForYou, featuredPlaylists,
   newReleases, topArtists, formatTime,
 } from '@/data/mockData';
-import { container, item, homeItem, cardHover } from '@/lib/animations';
+import { item, homeItem } from '@/lib/animations';
 
 function SectionHeader({ icon: Icon, title, subtitle }: { icon: ComponentType<{ size?: number; className?: string; strokeWidth?: number }>; title: string; subtitle?: string }) {
   return (

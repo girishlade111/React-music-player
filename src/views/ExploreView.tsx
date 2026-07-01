@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Play, Pause, Music, Sparkles, Heart } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { genres, moods, allTracks } from '@/data/mockData';
-import { container, item, cardHover } from '@/lib/animations';
+import { container, item } from '@/lib/animations';
 
 function ExploreView() {
   const setCurrentSong = useStore(s => s.setCurrentSong);
@@ -42,8 +42,6 @@ function ExploreView() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 className={`px-4 py-1.5 rounded-full text-sm tracking-wide capitalize transition-all ${
                   tab === t ? 'bg-white text-black font-medium' : 'bg-white/10 text-white/60 hover:bg-white/20'
                 }`}
@@ -106,6 +104,7 @@ function ExploreView() {
                           onClick={() => playTrack(track)}
                           whileHover={{ y: -2 }}
                           className="group bg-white/[0.03] hover:bg-white/[0.06] rounded-xl p-3 transition-colors cursor-pointer border border-white/[0.04] hover:border-white/10"
+                        >
                           <div className="relative aspect-square rounded-lg overflow-hidden mb-2.5">
                             <img
                               src={track.cover}
@@ -147,6 +146,8 @@ function ExploreView() {
               <motion.button
                 key={mood.name}
                 variants={item}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => {
                   const track = allTracks.find((t) => t.genre === mood.name.toLowerCase());
                   if (track) setCurrentSong(track);
@@ -159,12 +160,17 @@ function ExploreView() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
                 <span className="absolute bottom-3 left-3 text-white font-light text-base tracking-wide capitalize">
                   {mood.name}
                 </span>
-                <span className="absolute top-3 right-3 text-white/40">
+                <motion.span
+                  initial={{ rotate: 0 }}
+                  whileHover={{ rotate: 20, scale: 1.2 }}
+                  className="absolute top-3 right-3 text-white/40"
+                >
                   {i % 2 === 0 ? <Sparkles size={14} strokeWidth={1.5} /> : <Heart size={14} strokeWidth={1.5} />}
-                </span>
+                </motion.span>
               </motion.button>
             ))}
           </motion.div>

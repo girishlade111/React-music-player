@@ -3,16 +3,7 @@ import { motion } from 'framer-motion';
 import { Settings, Clock, Heart, Music, Play, Pause, ListMusic, Disc3, User, LogOut } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { allTracks, formatTime, listeningHistory, topArtists } from '@/data/mockData';
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
-} as const;
-
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] as const, duration: 0.4 } },
-};
+import { container, item } from '@/lib/animations';
 
 function ProfileView() {
   const setCurrentSong = useStore(s => s.setCurrentSong);
@@ -77,11 +68,15 @@ function ProfileView() {
             { label: 'Top Genre', value: 'Electronic', icon: Music },
             { label: 'Playlists', value: '12', icon: Disc3 },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 sm:p-4 text-center">
+            <motion.div
+              key={stat.label}
+              whileHover={{ y: -2, scale: 1.03 }}
+              className="bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] hover:border-white/10 rounded-xl p-3 sm:p-4 text-center transition-colors"
+            >
               <stat.icon size={16} className="text-aura-accent mx-auto mb-1.5" strokeWidth={1.5} />
               <p className="text-base sm:text-lg font-light text-white">{stat.value}</p>
               <p className="text-[10px] sm:text-xs text-white/40 tracking-wide mt-0.5">{stat.label}</p>
-            </div>
+            </motion.div>
           ))}
         </motion.div>
 
@@ -94,12 +89,13 @@ function ProfileView() {
               {recentTracks.map((track) => {
                 const isCurrent = currentSong?.id === track.id;
                 return (
-                  <div
+                  <motion.div
                     key={track.id + 'hist'}
                     onClick={() => handlePlay(track)}
+                    whileHover={{ x: 2 }}
                     className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                   >
-                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0">
+                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0 group-hover:shadow-glow-sm transition-shadow duration-500">
                       <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         {isCurrent && isPlaying ? (
@@ -116,7 +112,7 @@ function ProfileView() {
                       <p className="text-xs text-white/40 truncate">{track.artist}</p>
                     </div>
                     <span className="text-xs text-white/30 tabular-nums">{formatTime(track.duration)}</span>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -132,12 +128,13 @@ function ProfileView() {
               {likedTracks.slice(0, 5).map((track) => {
                 const isCurrent = currentSong?.id === track.id;
                 return (
-                  <div
+                  <motion.div
                     key={track.id}
                     onClick={() => handlePlay(track)}
+                    whileHover={{ x: 2 }}
                     className="group flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                   >
-                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0">
+                    <div className="relative w-11 h-11 rounded overflow-hidden flex-shrink-0 group-hover:shadow-glow-sm transition-shadow duration-500">
                       <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         {isCurrent && isPlaying ? (
@@ -154,18 +151,12 @@ function ProfileView() {
                       <p className="text-xs text-white/40 truncate">{track.artist}</p>
                     </div>
                     <Heart size={12} className="text-aura-accent" fill="#8B5CF6" strokeWidth={1.5} />
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           </motion.div>
         )}
-
-        <motion.div variants={item} className="mt-2 pb-20 lg:pb-4">
-          <button className="flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors tracking-wide">
-            <LogOut size={12} strokeWidth={1.5} /> Sign out
-          </button>
-        </motion.div>
       </motion.div>
     </div>
   );

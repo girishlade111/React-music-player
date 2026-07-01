@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, Mic, X, Clock, TrendingUp, Music, Play, Pause } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { genres, moods, recentSearches, trendingSearches, allTracks, formatTime } from '@/data/mockData';
-import { container, item, cardHover } from '@/lib/animations';
+import { container, item } from '@/lib/animations';
 
 const tabs = ['All', 'Songs', 'Artists', 'Albums'] as const;
 
@@ -95,8 +95,8 @@ function SearchView() {
                         : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
                     }`}
                   >
-                  {tab}
-                </button>
+                    {tab}
+                  </motion.button>
               ))}
             </motion.div>
 

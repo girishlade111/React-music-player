@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { btnHover, sidebarItem } from '@/lib/animations';
+import { sidebarItem } from '@/lib/animations';
 import {
   Home,
   Search,
