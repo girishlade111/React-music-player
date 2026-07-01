@@ -155,6 +155,7 @@ function PlayerBar() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={toggleMute}
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
               className="text-white/40 hover:text-white transition-colors"
             >
               {isMuted || volume === 0 ? (
@@ -209,6 +210,7 @@ function PlayerBar() {
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+          aria-label={isPlaying ? 'Pause' : 'Play'}
           className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0"
         >
           {isPlaying ? (
