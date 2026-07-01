@@ -157,6 +157,12 @@ function ProfileView() {
             </div>
           </motion.div>
         )}
+
+        <motion.div variants={item} className="mt-2 pb-20 lg:pb-4">
+          <button className="flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors tracking-wide">
+            <LogOut size={12} strokeWidth={1.5} /> Sign out
+          </button>
+        </motion.div>
       </motion.div>
     </div>
   );
