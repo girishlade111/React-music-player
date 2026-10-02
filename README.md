@@ -177,3 +177,7 @@ The app includes pre-populated mock data with:
 ## License
 
 MIT
+
+## Built by Girish Lade
+
+Crafted by **Girish Lade** — check out more free tools and projects at [https://ladestack.in](https://ladestack.in).
